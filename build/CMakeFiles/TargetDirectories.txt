@@ -1,3 +1,3 @@
-/home/mao/PopulationProtocol/build/CMakeFiles/rebuild_cache.dir
-/home/mao/PopulationProtocol/build/CMakeFiles/edit_cache.dir
-/home/mao/PopulationProtocol/build/CMakeFiles/DFSTest.dir
+/home/mqf/PP/build/CMakeFiles/DFSTest.dir
+/home/mqf/PP/build/CMakeFiles/edit_cache.dir
+/home/mqf/PP/build/CMakeFiles/rebuild_cache.dir

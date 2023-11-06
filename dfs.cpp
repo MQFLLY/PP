@@ -43,8 +43,7 @@ matrix mpow(matrix &a,long long m){
         for(int j = 0;j < idx;j++)
             res.mat[i][j] = 0;
     for(int i=0;i<idx;i++) res.mat[i][i]=1;
-    while(m>0)
-    {
+    while(m>0){
         if(m&1) res=multiply(res,a);
         a=multiply(a,a);
         m>>=1;
@@ -139,8 +138,10 @@ string tostring(char ch){
 }
 
 int main(){
-    int n,k;
+		//Input n and k , the number of agent and the number of group
+		int n,k;
     cin >> n >> k;
+		//rule
     pair<string,string> p0 = make_pair("0","0");
     pair<string,string> p1 = make_pair("1","1");
     rule[p0] = p1;
@@ -150,23 +151,25 @@ int main(){
     for(int i = 2;i <= k - 2;i++) {
     	rule[make_pair("0",toS(i))] = make_pair(tostring(i - 1 + 'a'),toS(i + 1));
     	rule[make_pair("1",toS(i))] = make_pair(tostring(i - 1 + 'a'),toS(i + 1));
-	rule[make_pair(tostring(i -1 + 'a'),toS(i + 1))] = make_pair("0",toS(i));
+		rule[make_pair(tostring(i -1 + 'a'),toS(i + 1))] = make_pair("0",toS(i));
     }
     rule[make_pair("0",toS(k - 1))] = make_pair(tostring(k - 2 + 'a'),tostring(k -1 +  'a'));
     rule[make_pair("1",toS(k - 1))] = make_pair(tostring(k - 2 + 'a'),tostring(k -1 +  'a'));
     for(auto it:rule){
-    	ch[it.fi.fi]++;
-	ch[it.fi.se]++;
-	ch[it.se.fi]++;
-	ch[it.se.se]++;
+        	ch[it.fi.fi]++;
+			ch[it.fi.se]++;
+			ch[it.se.fi]++;
+			ch[it.se.se]++;
     }
     for(auto it:ch){
         v[it.fi] = 0;
     }
     v["0"] = n;
 
-    dfs(v);
-    /*
+    //compute all the situations
+		dfs(v);
+
+
     for(int i = 0;i < idx;i++){
         for(int j = 0;j < idx;j++){
             printf("%.2f ",MATRIX.mat[i][j]);
@@ -181,7 +184,6 @@ int main(){
         }
         puts("");
     }
-    */
     cout << idx << '\n';
     
 }

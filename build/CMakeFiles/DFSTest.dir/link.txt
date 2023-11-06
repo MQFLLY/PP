@@ -1,1 +1,1 @@
-/usr/bin/c++     CMakeFiles/DFSTest.dir/dfs.cpp.o  -o DFSTest 
+/usr/bin/c++ CMakeFiles/DFSTest.dir/dfs.cpp.o -o DFSTest 
