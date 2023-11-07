@@ -52,15 +52,18 @@ string to_medium(int n){
     return "m" + toString(n);
 }
 
-string to_init(int n){
-    return "i" + toString(n);
+string to_d(int n){
+    return "d" + toString(n);
 }
 
 bool check(int n,int k){
     int cnt = 0;
+    int cnt2 = 0;
     for(int i = 1;i <= n;i++){
-       if(sta[i] == to_res(k)) cnt++; 
+        if(sta[i] == to_res(k)) cnt++; 
+        else if(sta[i] == to_res(k - 1)) cnt2++;
     }    
+    if(cnt == n / k && cnt2 != cnt) assert(0);
     return cnt == n / k;
 }
 
@@ -80,15 +83,30 @@ int go(int n,int k){
 void init_rule(int k){
     rule[make_pair("i0","i0")] = make_pair("i1","i1");
     rule[make_pair("i1","i1")] = make_pair("i0","i0");
-    rule[make_pair("i0","i1")] = make_pair("r1","m1");
-    rule[make_pair("r1","m1")] = make_pair("i0","i1");
-    for(int i = 2;i <= k - 2;i++) {
-    	rule[make_pair("i0",to_medium(i - 1))] = make_pair(to_medium(i),to_res(i));
-    	rule[make_pair("i1",to_medium(i - 1))] = make_pair(to_medium(i),to_res(i));
-		rule[make_pair(to_medium(i),to_res(i))] = make_pair("i0",to_medium(i - 1));
+    for(int i = 1;i <= k - 2;i++){
+        rule[make_pair(to_d(i),"i0")] = make_pair(to_d(i),"i1");
+        rule[make_pair(to_d(i),"i1")] = make_pair(to_d(i),"i0");
     }
-    rule[make_pair("i0",to_medium(k - 2))] = make_pair(to_res(k - 1),to_res(k));
-    rule[make_pair("i1",to_medium(k - 2))] = make_pair(to_res(k - 1),to_res(k));
+    for(int i = 1;i <= k;i++){
+        rule[make_pair(to_res(i),"i0")] = make_pair(to_res(i),"i1");
+        rule[make_pair(to_res(i),"i1")] = make_pair(to_res(i),"i0");
+    }
+    rule[make_pair("i0","i1")] = make_pair("r1","m2");
+    for(int i = 2;i <= k - 2;i++){
+        rule[make_pair("i0",to_medium(i))] = make_pair(to_res(i),to_medium(i + 1));
+        rule[make_pair("i1",to_medium(i))] = make_pair(to_res(i),to_medium(i + 1));
+    }
+    rule[make_pair("i0",to_medium(k - 1))] = make_pair(to_res(k - 1),to_res(k));
+    rule[make_pair("i1",to_medium(k - 1))] = make_pair(to_res(k - 1),to_res(k));
+    for(int i = 2;i <= k - 1;i++){
+        for(int j = 2;j <= k - 1;j++){
+            rule[make_pair(to_medium(i),to_medium(j))] = make_pair(to_d(i - 1),to_d(j - 1));
+        }
+    }
+    for(int i = 2;i <= k - 2;i++){
+        rule[make_pair(to_d(i),to_res(i))] = make_pair(to_d(i - 1),"i0");
+    }
+    rule[make_pair("d1","r1")] = make_pair("i0","i1");
 }
 
 int main(){
@@ -116,3 +134,4 @@ int main(){
 
     cout << "average time : " << tot_time / T; 
 }
+

@@ -1,0 +1,1 @@
+Input number the number of agents,groups,times,epoch
