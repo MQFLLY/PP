@@ -142,6 +142,7 @@ string to_medium(int n){
     return "m" + toS(n);
 }
 
+
 string tostring(char ch){
 	string tmp;
 	tmp += ch;
@@ -173,6 +174,56 @@ void init_rule(int n,int k){
     v["i0"] = n;
 }
 
+//10 3
+//1 2 2
+void trans_rule(vector<int> v,int k,int new_k){
+    puts("Before trans:");
+     for(auto it:rule){
+        cout << it.FI.FI << ' ' << it.FI.SE << ' ' << it.SE.FI << ' ' << it.SE.SE << '\n';
+    }   
+    
+    vector<PII> erase_v;
+    map<PII,PII> add_map;
+    map<string,string> to_new;
+    for(int i = 1;i <= new_k;i++){
+        int idx = 0;
+        int sum = 0;
+        for(int j = 0;j < k;j++){
+           if(i <= v[j] + sum) {
+                idx = j + 1;
+                //cout << "i: " << i << " -> " << idx << '\n'; 
+                to_new[to_res(i)] = to_res(idx);
+                break;
+           } 
+           sum += v[j]; 
+        }
+    }
+    for(auto it:rule){
+        bool flag = 0;
+        pair<PII,PII> tmp = it;
+        for(auto itt:to_new){
+           if(tmp.FI.FI == itt.FI) tmp.FI.FI = itt.SE,flag |= 1;
+           if(tmp.FI.SE == itt.FI) tmp.FI.SE = itt.SE,flag |= 1;
+           if(tmp.SE.FI == itt.FI) tmp.SE.FI = itt.SE,flag |= 1;
+           if(tmp.SE.SE == itt.FI) tmp.SE.SE = itt.SE,flag |= 1;
+        }
+        if(flag) {
+            erase_v.push_back(it.FI);
+            add_map[tmp.FI] = tmp.SE;
+        }
+    }
+    for(auto it:erase_v){
+        rule.erase(it);
+    }
+    for(auto it:add_map){
+        rule[it.FI] = it.SE;
+    }
+    puts("After trans:");
+    for(auto it:rule){
+        cout << it.FI.FI << ' ' << it.FI.SE << ' ' << it.SE.FI << ' ' << it.SE.SE << '\n';
+    }
+}
+
 void show_matrix(){
     for(int i = 0;i < idx;i++){
         for(int j = 0;j < idx;j++){
@@ -183,8 +234,8 @@ void show_matrix(){
     puts("--------------------");
 }
 
-double equals(double a,double b){
-    return fabs(a - b) < 1e-5;
+bool equals(double a,double b){
+    return fabs(a - b) < 1e-4;
 }
 
 void show_matrix_infpow(){
@@ -220,13 +271,47 @@ void show_matrix_infpow(){
     }
 }
 
+int gcd(int a,int b){
+    return !b ? a : gcd(b,a % b);
+}
+
+int gcd_all(vector<int>& v){
+    if(v.size() == 2) return gcd(v[0],v[1]);
+    int tmp = v.back();
+    v.pop_back();
+    return gcd(tmp,gcd_all(v));
+}
+
 int main(){
 	//Input n and k , the number of agent and the number of group
-    puts("Input number the number of agents,groups");
+    puts("Input number the number of agents,groups and the ratio");
+    puts("Please ensure the n you input can be divide by the sum of ratio");
     int n,k;
     cin >> n >> k;
+    vector<int> ratio;
+    for(int i = 0;i < k;i++){
+        int tmp;
+        cin >> tmp;
+        ratio.push_back(tmp);
+    }
+    auto cal = ratio;
+    int g = gcd_all(cal);
+    int new_k = 0;
+    for(int i = 0;i < k;i++){
+        ratio[i] /= g;
+        new_k += ratio[i];
+    }
+    sort(ratio.begin(),ratio.end());
+
+    /*
+    for(auto it:ratio){
+        cout << it << ' ';
+    }
+    puts("");*/
+
 	//rule
-    init_rule(n,k);
+    init_rule(n,new_k);
+    trans_rule(ratio,k,new_k);
 
     //compute all the situations
 	dfs(v);

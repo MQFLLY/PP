@@ -113,6 +113,5 @@ int main(){
         }
         cout << now << '\n';
     }
-
     cout << "average time : " << tot_time / T; 
 }
