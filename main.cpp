@@ -3,11 +3,13 @@
 #include "population_protocol_simtime_ourwork.h"
 #include "population_protocol_simtime_otherwork.h"
 
+
+// *example code *//
 int main() {
-    PopulationProtocolSimtime_OurWork pp1(16, 4);
-    pp1.Simulation_varyingK(100, 1);
-    pp1.Simulation_varyingN(100, 1, 20);
-    PopulationProtocolSimtime_OtherWork pp2(16, 4);
-    pp2.Simulation_varyingK(100, 1);
-    pp2.Simulation_varyingN(100, 1, 20);
+    // PP by our work with condition n = 100, k = 10, trace the intermediate results 
+    PopulationProtocolSimtime_OurWork pp1(100, 10, 1);
+    // Remeber to Init before call Simulation
+    pp1.Init();
+    // Simulation 10 times and do not ignore each statistics with max n =  60 
+    pp1.Simulation_varyingN(10, 0, 60);
 }

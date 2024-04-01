@@ -18,5 +18,6 @@ void PopulationProtocol::Update(const int &x, const int &y) {
         }
         agent_sta_[x] = interact_after.first;
         agent_sta_[y] = interact_after.second;
+        unnull_time_++;
     }
 }

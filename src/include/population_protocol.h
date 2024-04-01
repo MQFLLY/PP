@@ -27,4 +27,6 @@ class PopulationProtocol {
     uint32_t final_agents_cnt_;
     /** The agent state in final state*/
     std::string final_agent_;
+    /** unnull time*/
+    uint64_t unnull_time_;
 };

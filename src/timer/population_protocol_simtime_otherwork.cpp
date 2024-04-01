@@ -1,7 +1,7 @@
 #include "population_protocol_simtime_otherwork.h"
 #include "utils.h"
 
-PopulationProtocolSimtime_OtherWork::PopulationProtocolSimtime_OtherWork(uint32_t n, uint32_t k): PopulationProtocolSimtime(n, k) {}
+PopulationProtocolSimtime_OtherWork::PopulationProtocolSimtime_OtherWork(uint32_t n, uint32_t k, bool is_trace): PopulationProtocolSimtime(n, k, is_trace) {}
 
 void PopulationProtocolSimtime_OtherWork::Init() {
 

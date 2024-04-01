@@ -1,7 +1,7 @@
 #include "population_protocol_simtime_ourwork.h"
 #include "utils.h"
 
-PopulationProtocolSimtime_OurWork::PopulationProtocolSimtime_OurWork(uint32_t n, uint32_t k): PopulationProtocolSimtime(n, k) {}
+PopulationProtocolSimtime_OurWork::PopulationProtocolSimtime_OurWork(uint32_t n, uint32_t k, bool is_trace): PopulationProtocolSimtime(n, k, is_trace) {}
 
 void PopulationProtocolSimtime_OurWork::Init() {
     rule_.clear();

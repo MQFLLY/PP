@@ -7,7 +7,7 @@ class RandomGenerator {
  public:
     using interact_int_pair = std::pair<uint32_t, uint32_t>;
     RandomGenerator(int n) : n_(n), generator_(std::random_device()()), distribution_(1, n) {
-        // 使用随机设备生成种子，并初始化分布范围为 [0, 100]
+        // generate a random number between [1, n] 
     }
     uint32_t generate() {
         return distribution_(generator_);
