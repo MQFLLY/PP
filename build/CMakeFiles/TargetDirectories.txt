@@ -1,3 +1,0 @@
-/home/mqf/PopulationProtocol/build/CMakeFiles/main_cmake.dir
-/home/mqf/PopulationProtocol/build/CMakeFiles/edit_cache.dir
-/home/mqf/PopulationProtocol/build/CMakeFiles/rebuild_cache.dir

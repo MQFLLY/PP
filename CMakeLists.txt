@@ -1,16 +1,15 @@
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 3.0)
 
-project(PP)
+project(PopulationProtocol)
 
-set(SOURCE_FILES
-    main.cpp
-    src/timer/population_protocol.cpp
-    src/timer/utils.cpp
-    src/timer/population_protocol_simtime_ourwork.cpp
-    src/timer/population_protocol_simtime_otherwork.cpp
-    src/timer/population_protocol_simtime.cpp
-)
+set(CMAKE_CXX_STANDARD 11)
 
-add_executable(main_cmake ${SOURCE_FILES})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/include)
 
-target_include_directories(main_cmake PRIVATE src/include)
+set(CMAKE_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+
+file(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+
+add_executable(main ${SRC_FILES})
