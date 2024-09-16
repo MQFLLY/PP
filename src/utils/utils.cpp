@@ -27,27 +27,35 @@ std::string Utils::NumberToI(int n) {
     return "i" + NumberToString(n);
 }
 
+void Utils::print_star(std::string str, int num_star) {
+   std::string star;
+   for (int i = 0; i < num_star; i++) {
+    star = star + "=";
+   } 
+   std::cout << star << " " << str << " " << star << std::endl;
+}
+
 void Utils::show_menu() {
     std::string input;
     while (1) {
-        std::cout << "-------- SELECT AUTHOR -------" << std::endl;
-        std::cout << "-------- 1: our work -------" << std::endl;
-        std::cout << "-------- 2: Yasumi's work -------" << std::endl;
-        std::cout << "-------- 3: exit -------" << std::endl;
+        print_star("SELECT AUTHOR");
+        print_star("1: our work");
+        print_star("2: Yasumi's work");
+        print_star("3: exit");
         std::getline(std::cin, input);
-        if (input != "1" && input != "2") {
-            std::cout << "[warn] please input '1' or '2'" << std::endl;
+        if (input != "1" && input != "2" && input != "3") {
+            std::cout << "[warn] please input '1' or '2' or '3" << std::endl;
         }
         else {
             break;
         }
     }
     if (input == "1") {
-        std::cout << "------- our work -------" << std::endl;
-        std::cout << "-------- SELECT TYPE -------" << std::endl;
-        std::cout << "-------- 1: simulate time -------" << std::endl;
-        std::cout << "------- 2: theoretical time -------" << std::endl;
-        std::cout << "------- 3: get states number -------" << std::endl;
+        print_star("our work");
+        print_star("SELECT TYPE");
+        print_star("1: simulate time");
+        print_star("2: theoretical time");
+        print_star("3: get states number");
         std::getline(std::cin, input);
         if (input != "1" && input != "2" && input != "3") {
             std::cout << "[warn] please input '1' or '2' or '3'" << std::endl;
@@ -63,10 +71,14 @@ void Utils::show_menu() {
         }
     }
     else if (input == "2") {
-        std::cout << "-------- Yasumi's work -------" << std::endl;
-        std::cout << "-------- simulate time -------" << std::endl;
-        std::cout << "-------- input configs (n, k, iteration, is_trace, period) -------" << std::endl;
+        print_star("Yasumi's work");
+        
+        print_star("simulate time");
+        print_star("input configs (n, k, iteration, is_trace, period)");
         int n, k, iteration, is_trace, period;
         std::cin >> n >> k >> iteration >> is_trace >> period;
+    }
+    else {
+        exit(0);
     }
 }
