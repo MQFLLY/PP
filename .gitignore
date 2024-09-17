@@ -1,3 +1,4 @@
 CMakeCache.txt
 .vsocde
-CMakeFiles
+CMakeFiles/
+cmake_install.cmake

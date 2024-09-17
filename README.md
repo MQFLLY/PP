@@ -1,14 +1,22 @@
-# Fluctuation-enhanced Scheme for Solving -Partition Problems via Population Protocols
-This project serves as the code repository for the paper titled "Fluctuation-enhanced scheme for solving -partition problems via population protocols".
+# Fluctuation-enhanced Scheme for Solving $k$-Partition Problems via Population Protocols
+This project serves as the code repository for the paper titled *_Fluctuation-enhanced scheme for solving $k$-partition problems via population protocols_*.
 ## What is Population Protocol?
 Population protocol is a swarm intelligence computing protocol.
 ## Project Overview
-This project designs a population protocol to efficiently solve the -partition problem.
+This project designs a population protocol to efficiently solve the $k$-partition problem.
 ## Configuration Environment
 The code is configured for the Linux system. Please run it under Linux and install necessary dependencies such as cmake and g++.
+``` bash
+cmake .
+make
+cd build && ./main
+```
+
 ## Code Functions
-Calculate the theoretical value of the expected number of interactions under specific  and .
-Calculate the experimental value of the expected number of interactions under specific  and .
+Calculate the theoretical value of the expected number of interactions under specific $n$ and $k$.
+
+Calculate the experimental value of the expected number of interactions under specific $n$ and $k$.
+
 Calculate the protocol value of the expected number of interactions under Yasumi et al.'s protocol.
 Plot the statistical values using Python.
 ## Interaction Mode
