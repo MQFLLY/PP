@@ -1,5 +1,5 @@
 # Fluctuation-enhanced Scheme for Solving $k$-Partition Problems via Population Protocols
-This project serves as the code repository for the paper titled *_Fluctuation-enhanced scheme for solving $k$-partition problems via population protocols_*.
+This project serves as the code repository for the paper titled *_Fluctuation-enhanced scheme for solving k-partition problems via population protocols_*.
 ## What is Population Protocol?
 Population protocol is a swarm intelligence computing protocol.
 ## Project Overview
@@ -18,6 +18,7 @@ Calculate the theoretical value of the expected number of interactions under spe
 Calculate the experimental value of the expected number of interactions under specific $n$ and $k$.
 
 Calculate the protocol value of the expected number of interactions under Yasumi et al.'s protocol.
+
 Plot the statistical values using Python.
 ## Interaction Mode
 The code in this project is interactive, making it extremely simple and convenient to use.
