@@ -42,4 +42,5 @@ void PopulationProtocolSimtime_OtherWork::Init() {
 	}
 	//10
 	rule_[std::make_pair("d1", "r1")] = std::make_pair("i0", "i0");
+    std::cout << "[INFO: RULE INITIALIZED]" << std::endl;
 }

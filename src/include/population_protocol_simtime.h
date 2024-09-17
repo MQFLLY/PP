@@ -19,7 +19,8 @@ class PopulationProtocolSimtime: public PopulationProtocol {
     /** go for all k with fixed n */
    void Simulation_varyingK(const uint32_t &times, const bool &ignore_result); 
     /** go for all n fixed k, n less than max_n */
-   void Simulation_varyingN(const uint32_t &times, const bool &ignore_result, const uint32_t &max_n); 
+   void Simulation_varyingN(const uint32_t &times, const bool &ignore_result, const uint32_t &max_n);
+
  private:
    RandomGenerator rng_;
     /** trace the converge of last agent*/

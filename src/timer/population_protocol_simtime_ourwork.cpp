@@ -23,4 +23,5 @@ void PopulationProtocolSimtime_OurWork::Init() {
     rule_[std::make_pair(Utils::NumberToM(k_ - 2),"i0")] = std::make_pair(Utils::NumberToR(k_ - 1),Utils::NumberToR(k_));
     rule_[std::make_pair("i1",Utils::NumberToM(k_ - 2))] = std::make_pair(Utils::NumberToR(k_ - 1),Utils::NumberToR(k_));
     rule_[std::make_pair(Utils::NumberToM(k_ - 2),"i1")] = std::make_pair(Utils::NumberToR(k_ - 1),Utils::NumberToR(k_));
+    std::cout << "[INFO: RULE INITIALIZED]" << std::endl;
 }

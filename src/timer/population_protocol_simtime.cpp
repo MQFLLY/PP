@@ -31,10 +31,6 @@ auto PopulationProtocolSimtime::Simulation_go() -> uint64_t {
         if (Check()) {
             return time;
         }
-        if (time % 1000000 == 0) {
-            std::cout << "time = " << time << ' ' << std::endl;
-            SnapShot();
-        }
         auto p = rng_ .gen();
         Update(p.first, p.second);
         if (is_trace_) {
@@ -93,7 +89,8 @@ void PopulationProtocolSimtime::Simulation(const uint32_t &times, const bool &ig
     for (int i = 0; i < times; i++) {
        uint64_t time = Simulation_go();
        tot += time;
-       if(!ignore_result) std::cout << "n = " << n_ << " k = " << k_ << " i = " << i <<  " num = " << time << std::endl; 
+       if(!ignore_result) std::cout << "[DEBUG: n = " << n_ << " k = " << 
+            k_ << " cur_time = " << i <<  " num = " << time << "]" << std::endl; 
        tmp.push_back(time); 
     }
     avg = tot / times;
@@ -101,8 +98,8 @@ void PopulationProtocolSimtime::Simulation(const uint32_t &times, const bool &ig
         std += (avg - it) * (avg - it);
     }
     std = sqrt(std);
-    std::cout << "n = " << n_ << " k = " << k_ << " avg = " << avg << " std = " << std << std::endl;
-    std::cout << "unnull time = " << unnull_time_ << std::endl;
+    std::cout << "[INFO: n = " << n_ << " k = " << k_ << " avg = " << avg << " std = " << std << "]" << std::endl;
+    std::cout << "[INFO: unnull time = " << unnull_time_ << "]" << std::endl;
     if (is_trace_) {
         std::cout << "total switch time = " << tot_switch_time_ << std::endl;
         uint64_t tot_upgrade_time = 0;
