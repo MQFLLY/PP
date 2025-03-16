@@ -1,7 +1,7 @@
 #ifndef KDIVISION_STATE_H
 #define KDIVISION_STATE_H
 
-#include "State.h"
+#include "state/State.h"
 #include <string>
 #include <memory>
 

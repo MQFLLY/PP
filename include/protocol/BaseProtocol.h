@@ -3,8 +3,8 @@
 #define BASE_PROTOCOL_H
 
 #include <vector>
-#include "ProtocolTraits.h"
-#include "Agent.h"
+#include "protocol/ProtocolTraits.h"
+#include "agent/Agent.h"
 
 template <typename Derived>
 class BaseProtocol {

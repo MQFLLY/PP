@@ -1,7 +1,7 @@
 #ifndef COMPLETE_GRAPH_H
 #define COMPLETE_GRAPH_H
 
-#include "Graph.h"
+#include "graph/Graph.h"
 #include <random>
 
 class CompleteGraph : public Graph {

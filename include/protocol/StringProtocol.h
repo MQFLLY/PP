@@ -2,8 +2,8 @@
 #ifndef STRING_PROTOCOL_H
 #define STRING_PROTOCOL_H
 
-#include "BaseProtocol.h"
-#include "StringState.h" 
+#include "protocol/BaseProtocol.h"
+#include "state/StringState.h" 
 
 template <>
 struct ProtocolTraits<StringProtocol> {

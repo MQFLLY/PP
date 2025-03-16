@@ -1,5 +1,5 @@
-#include "StringProtocol.h"
-#include "StringState.h"
+#include "protocol/StringProtocol.h"
+#include "state/StringState.h"
 #include <algorithm>
 
 void StringProtocol::initializeAgents(std::vector<Agent<StringProtocol>>& agents) {

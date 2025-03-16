@@ -1,24 +1,24 @@
-#include "Simulator.h"
-#include "KDivisionProtocol.h"
-#include "CompleteGraph.h"
+#include "simulation/Simulator.h"
+#include "protocol/KDivisionProtocol.h"
+#include "graph/CompleteGraph.h"
+#include "simulation/Evaluator.h"
 #include <iostream>
 
 int main() {
-    constexpr int n = 40;
-    constexpr int k = 4;
+    constexpr int max_n = 20;
+    constexpr int max_k = 5;
+    constexpr int trials = 10;
 
-    auto graph = std::make_unique<CompleteGraph>(n);
-    auto protocol = KDivisionProtocol(k);
+    ConvergenceEvaluator<KDivisionProtocolFactory> evaluator;
 
-    Simulator<KDivisionProtocol> simulator(std::move(graph), std::move(protocol), n);
-    simulator.run();
-
-    if (simulator.isConverged()) {
-        std::cout << "Successfully divided into " << k << " groups!\n";
-    } else {
-        std::cout << "Failed to converge\n";
+    for(int k = 3; k <= max_k; k++) {
+        for(int n = k; n <= max_n; n += k) {
+            for(int t = 0; t < trials; ++t) {
+                evaluator.evaluate(n, k);
+            }
+        }
     }
 
-    simulator.printStates();
+    evaluator.printResults();
     return 0;
 }

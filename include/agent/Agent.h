@@ -2,7 +2,7 @@
 #define AGENT_H
 
 #include <memory>
-#include "State.h"
+#include "state/State.h"
 
 template <typename Protocol> class BaseProtocol;
 

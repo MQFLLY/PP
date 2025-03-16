@@ -2,7 +2,7 @@
 #ifndef STRING_STATE_H
 #define STRING_STATE_H
 
-#include "State.h"
+#include "state/State.h"
 
 class StringProtocol;  
 

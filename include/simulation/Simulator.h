@@ -5,15 +5,16 @@
 #include <memory>
 #include <vector>
 #include <iostream>
-#include "Graph.h"
-#include "BaseProtocol.h"
-#include "Agent.h"
+#include "graph/Graph.h"
+#include "protocol/BaseProtocol.h"
+#include "agent/Agent.h"
 
 template <typename Protocol>
 class Simulator {
     std::unique_ptr<Graph> graph;
     Protocol protocol;
     std::vector<Agent<Protocol>> agents;
+    size_t interaction_count = 0;
 
 public:
     Simulator(std::unique_ptr<Graph> g, Protocol p, size_t numAgents)
@@ -21,17 +22,19 @@ public:
         protocol.initializeAgents(agents);
     }
 
-    void run(int maxSteps = 100000) {
+    int run(size_t maxSteps = 1000000) {
         if (!graph->hasEdges()) {
             throw std::runtime_error("Graph has no edges");
         }
 
-        for (int i = 0; i < maxSteps; ++i) {
-            if (protocol.isConverged(agents)) break;
+        for(interaction_count = 0; interaction_count < maxSteps; ++interaction_count) {
+            if (protocol.isConverged(agents)) 
+                return interaction_count;
 
             auto [a, b] = graph->selectRandomEdge();
             protocol.interact(agents[a], agents[b]);
         }
+        return -1;
     }
 
     bool isConverged() const {

@@ -1,4 +1,4 @@
-#include "CompleteGraph.h"
+#include "graph/CompleteGraph.h"
 
 CompleteGraph::CompleteGraph(size_t n) : numNodes(n) {}
 
