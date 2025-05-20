@@ -5,13 +5,13 @@
 #include <random>
 
 class CompleteGraph : public Graph {
-    size_t numNodes;
-    mutable std::mt19937 rng{std::random_device{}()};
-
 public:
     explicit CompleteGraph(size_t n);
     std::pair<size_t, size_t> selectRandomEdge() override;
     bool hasEdges() const override;
+private:
+    size_t numNodes;
+    mutable std::mt19937 rng{std::random_device{}()};
 };
 
 #endif // COMPLETE_GRAPH_H

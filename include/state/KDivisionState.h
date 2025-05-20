@@ -8,8 +8,6 @@
 class KDivisionProtocol;
 
 class KDivisionState : public State<KDivisionProtocol> {
-    std::string value;
-
 public:
     explicit KDivisionState(std::string s) : value(std::move(s)) {}
 
@@ -25,6 +23,8 @@ public:
     std::string getValue() const { return value; }
 
     virtual ~KDivisionState() = default;
+private:
+    std::string value;
 };
 
 #endif

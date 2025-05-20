@@ -15,22 +15,6 @@ struct ProtocolTraits<KDivisionProtocol> {
 };
 
 class KDivisionProtocol : public BaseProtocol<KDivisionProtocol> {
-    int k;
-    using RuleKey = std::pair<std::string, std::string>;
-    using RuleValue = std::pair<std::string, std::string>;
-
-
-    struct PairHash {
-        template <class T1, class T2>
-        std::size_t operator () (const std::pair<T1,T2>& p) const {
-            auto h1 = std::hash<T1>{}(p.first);
-            auto h2 = std::hash<T2>{}(p.second);
-            return h1 ^ (h2 << 1);
-        }
-    };
-    
-    std::unordered_map<RuleKey, RuleValue, PairHash> rule_cache_;
-
 /**
     1. (i1,i1) → (i2,i2)
     2. (i2,i2) → (i1,i1)
@@ -141,6 +125,23 @@ public:
         }
         return true;
     }
+
+private:
+    int k;
+    using RuleKey = std::pair<std::string, std::string>;
+    using RuleValue = std::pair<std::string, std::string>;
+
+
+    struct PairHash {
+        template <class T1, class T2>
+        std::size_t operator () (const std::pair<T1,T2>& p) const {
+            auto h1 = std::hash<T1>{}(p.first);
+            auto h2 = std::hash<T2>{}(p.second);
+            return h1 ^ (h2 << 1);
+        }
+    };
+    
+    std::unordered_map<RuleKey, RuleValue, PairHash> rule_cache_;
 };
 
 class KDivisionProtocolFactory {

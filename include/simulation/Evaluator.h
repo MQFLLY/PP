@@ -1,18 +1,15 @@
 // Evaluator.h
 #include "util/ThreadPool.h"
+#include "util/DatabaseManager.h"
 #include <map>
 #include <atomic>
 
 template <typename ProtocolFactory>
 class ConvergenceEvaluator {
-    ThreadPool pool;
-    ProtocolFactory factory;
-
-    std::map<std::pair<int, int>, std::vector<std::future<int>>> results;
-    std::mutex result_mutex;
-
 public:
-    explicit ConvergenceEvaluator(size_t threads = 4) : pool(threads) {}
+    explicit ConvergenceEvaluator(size_t threads = 4, 
+        std::string db_path = "protocol_results.db") 
+        : pool(threads), db(db_path) {}
 
     void evaluate(int n, int k, int trials = 1) {
         for (int t = 0; t < trials; ++t) {
@@ -28,7 +25,7 @@ public:
             
             {
                 std::lock_guard<std::mutex> lock(result_mutex);
-                results[{n, k}].emplace_back(std::move(future));
+                results[{n, k, trials}].emplace_back(std::move(future));
             }
         }
     }
@@ -36,7 +33,7 @@ public:
     void printResults() {
         std::lock_guard<std::mutex> lock(result_mutex);
         for (auto& [params, futures] : results) {
-            auto [n, k] = params;
+            auto [n, k, trials] = params;
             
             long long total_steps = 0;
             int trial_count = 0;
@@ -50,6 +47,13 @@ public:
             std::cout << "n=" << n << " k=" << k 
                      << " | Trials: " << trial_count
                      << " | Avg Steps: " << avg_steps << "\n";
+            db.saveResult(n, k, trials, avg_steps);
         }
     }
+private:
+    ThreadPool pool;
+    ProtocolFactory factory;
+    DatabaseManager db;
+    std::map<std::tuple<int, int, int>, std::vector<std::future<int>>> results;
+    std::mutex result_mutex;
 };

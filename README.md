@@ -10,6 +10,12 @@ The code is configured for the Linux system. Please run it under Linux and insta
 mkdir -p build
 cd build && cmake ..
 make
+# Linux
+export LD_LIBRARY_PATH=thirdparty/duckdb/build/release/src:$LD_LIBRARY_PATH
+
+# macOS
+export DYLD_LIBRARY_PATH=thirdparty/duckdb/build/release/src:$DYLD_LIBRARY_PATH
+
 ./PopulationProtocol
 ```
 
