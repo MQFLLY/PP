@@ -101,7 +101,7 @@ public:
         10. (ij,mk−2) → (gk−1,gk) (1 ≤ j ≤ 2)
      */
 
-    void interact(Agent<KDivisionProtocol>& a, Agent<KDivisionProtocol>& b) override {
+    void interactImpl(Agent<KDivisionProtocol>& a, Agent<KDivisionProtocol>& b) {
         const auto* a_state = dynamic_cast<const KDivisionState*>(a.getState());
         const auto* b_state = dynamic_cast<const KDivisionState*>(b.getState());
         
@@ -117,13 +117,13 @@ public:
         }
     }
 
-    void initializeAgents(std::vector<Agent<KDivisionProtocol>>& agents) override {
+    void initializeAgentsImpl(std::vector<Agent<KDivisionProtocol>>& agents) {
         for (auto& agent : agents) {
             agent.setState(std::make_unique<KDivisionState>("i1"));
         }
     }
 
-    bool isConverged(const std::vector<Agent<KDivisionProtocol>>& agents) const override {
+    bool isConvergedImpl(const std::vector<Agent<KDivisionProtocol>>& agents) const {
         std::unordered_map<std::string, int> counts;
 
         for (const auto& agent : agents) {

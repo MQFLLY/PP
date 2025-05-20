@@ -12,9 +12,9 @@ struct ProtocolTraits<StringProtocol> {
 
 class StringProtocol : public BaseProtocol<StringProtocol> {
 public:
-    void initializeAgents(std::vector<Agent<StringProtocol>>& agents) override;
-    void interact(Agent<StringProtocol>& a, Agent<StringProtocol>& b) override;
-    bool isConverged(const std::vector<Agent<StringProtocol>>& agents) const override;
+    void initializeAgentsImpl(std::vector<Agent<StringProtocol>>& agents);
+    void interactImpl(Agent<StringProtocol>& a, Agent<StringProtocol>& b);
+    bool isConvergedImpl(const std::vector<Agent<StringProtocol>>& agents) const;
 };
 
 #endif

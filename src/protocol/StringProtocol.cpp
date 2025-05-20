@@ -2,13 +2,13 @@
 #include "state/StringState.h"
 #include <algorithm>
 
-void StringProtocol::initializeAgents(std::vector<Agent<StringProtocol>>& agents) {
+void StringProtocol::initializeAgentsImpl(std::vector<Agent<StringProtocol>>& agents) {
     for (auto& agent : agents) {
         agent.setState(std::make_unique<StringState>("init"));
     }
 }
 
-void StringProtocol::interact(Agent<StringProtocol>& a, Agent<StringProtocol>& b) {
+void StringProtocol::interactImpl(Agent<StringProtocol>& a, Agent<StringProtocol>& b) {
     const auto* aState = dynamic_cast<const StringState*>(a.getState());
     const auto* bState = dynamic_cast<const StringState*>(b.getState());
 
@@ -22,7 +22,7 @@ void StringProtocol::interact(Agent<StringProtocol>& a, Agent<StringProtocol>& b
     }
 }
 
-bool StringProtocol::isConverged(const std::vector<Agent<StringProtocol>>& agents) const {
+bool StringProtocol::isConvergedImpl(const std::vector<Agent<StringProtocol>>& agents) const {
     if (agents.empty()) return true;
 
     const auto* first = dynamic_cast<const StringState*>(agents[0].getState());
