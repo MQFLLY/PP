@@ -7,7 +7,7 @@ This project designs a population protocol to efficiently solve the $k$-partitio
 ## Configuration Environment
 The code is configured for the Linux system. Please run it under Linux and install necessary dependencies such as cmake and g++.
 ``` bash
-rm -rf build/*
+mkdir -p build
 cd build && cmake ..
 make
 ./PopulationProtocol

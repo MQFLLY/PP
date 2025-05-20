@@ -3,6 +3,7 @@
 #define STRING_STATE_H
 
 #include "state/State.h"
+#include <string>
 
 class StringProtocol;  
 
