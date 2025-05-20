@@ -15,9 +15,7 @@ void test_k_div_1() {
 
     for(int k = 3; k <= max_k; k++) {
         for(int n = k; n <= max_n; n += k) {
-            for(int t = 0; t < trials; ++t) {
-                evaluator.evaluate(n, k);
-            }
+            evaluator.evaluate(n, k, trials);
         }
     }
 
