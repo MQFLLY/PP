@@ -4,6 +4,7 @@
 #include "duckdb.hpp"
 #include <mutex>
 #include <string>
+#include <spdlog/spdlog.h>
 
 class DatabaseManager {
 public:
@@ -29,7 +30,7 @@ public:
         query->Execute(n, k, trials, avg_steps);
         // TODO: 
         //  log info instead of io stream
-        std::cout << "dump [" << db_path << "] ok" << std::endl;
+        spdlog::debug("dump[{}] ok", db_path);
     }
 private:
     duckdb::DuckDB db;

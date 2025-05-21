@@ -3,6 +3,7 @@
 #include "util/DatabaseManager.h"
 #include <map>
 #include <atomic>
+#include <spdlog/spdlog.h>
 
 template <typename ProtocolFactory>
 class ConvergenceEvaluator {
@@ -44,9 +45,8 @@ public:
             }
 
             long long avg_steps = total_steps / trial_count;
-            std::cout << "n=" << n << " k=" << k 
-                     << " | Trials: " << trial_count
-                     << " | Avg Steps: " << avg_steps << "\n";
+            spdlog::info("n={} k={} | Trials: {} | Avg Steps: {}", 
+                n, k, trial_count, avg_steps);
             db.saveResult(n, k, trials, avg_steps);
         }
     }

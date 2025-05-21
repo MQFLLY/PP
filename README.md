@@ -7,9 +7,11 @@ This project designs a population protocol to efficiently solve the $k$-partitio
 ## Configuration Environment
 The code is configured for the Linux system. Please run it under Linux and install necessary dependencies such as cmake and g++.
 ``` bash
+git submodule add https://github.com/duckdb/duckdb.git thirdparty/duckdb
+git submodule update --init --recursive
 mkdir -p build
 cd build && cmake ..
-make
+make -j8
 # Linux
 export LD_LIBRARY_PATH=thirdparty/duckdb/build/release/src:$LD_LIBRARY_PATH
 
@@ -17,6 +19,9 @@ export LD_LIBRARY_PATH=thirdparty/duckdb/build/release/src:$LD_LIBRARY_PATH
 export DYLD_LIBRARY_PATH=thirdparty/duckdb/build/release/src:$DYLD_LIBRARY_PATH
 
 ./PopulationProtocol
+
+./duckdb protocol_results.db
+D SELECT * FROM protocol_results ORDER BY avg_steps DESC;
 ```
 
 ## Code Functions
