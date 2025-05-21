@@ -14,13 +14,16 @@ cd build && cmake ..
 make -j8
 # Linux
 export LD_LIBRARY_PATH=thirdparty/duckdb/build/release/src:$LD_LIBRARY_PATH
+sudo snap install duckdb
 
 # macOS
 export DYLD_LIBRARY_PATH=thirdparty/duckdb/build/release/src:$DYLD_LIBRARY_PATH
+brew install duckdb
 
 ./PopulationProtocol
 
-./duckdb protocol_results.db
+duckdb --version
+duckdb protocol_results.db
 D SELECT * FROM protocol_results ORDER BY avg_steps DESC;
 ```
 

@@ -30,7 +30,7 @@ public:
         query->Execute(n, k, trials, avg_steps);
         // TODO: 
         //  log info instead of io stream
-        spdlog::debug("dump[{}] ok", db_path);
+        spdlog::info("dump[{}] ok", db_path);
     }
 private:
     duckdb::DuckDB db;

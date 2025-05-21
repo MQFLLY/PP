@@ -6,12 +6,12 @@
 #include <spdlog/spdlog.h>
 #include <gflags/gflags.h>
 
-DEFINE_int32(num_agents, 1000, "Number of agents");
+DEFINE_int32(num_agents, 100, "Number of agents");
 
-void test_k_div_1(int n) {
+void test_k_div_1(int num_agents) {
     auto start = std::chrono::high_resolution_clock::now();
 
-    int max_n = n;
+    int max_n = num_agents;
     constexpr int max_k = 5;
     constexpr int trials = 100;
 
