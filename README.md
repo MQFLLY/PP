@@ -5,7 +5,7 @@ Population protocol is a swarm intelligence computing protocol.
 ## Project Overview
 This project designs a population protocol to efficiently solve the $k$-partition problem.
 ## Configuration Environment
-The code is configured for the Linux system. Please run it under Linux and install necessary dependencies such as cmake and g++.
+The code is configured for the Linux system. Please run it under Linux and install necessary dependencies: cmake, g++, gflags.
 ``` bash
 git submodule add https://github.com/duckdb/duckdb.git thirdparty/duckdb
 git submodule update --init --recursive

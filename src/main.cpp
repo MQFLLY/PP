@@ -4,11 +4,14 @@
 #include "simulation/Evaluator.h"
 #include <iostream>
 #include <spdlog/spdlog.h>
+#include <gflags/gflags.h>
 
-void test_k_div_1() {
+DEFINE_int32(num_agents, 1000, "Number of agents");
+
+void test_k_div_1(int n) {
     auto start = std::chrono::high_resolution_clock::now();
 
-    constexpr int max_n = 20;
+    int max_n = n;
     constexpr int max_k = 5;
     constexpr int trials = 100;
 
@@ -29,8 +32,10 @@ void test_k_div_1() {
     spdlog::info("total cost: {} ms", duration.count());
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    gflags::ParseCommandLineFlags(&argc, &argv, true);
     spdlog::info("Welcome to PopulationProtocol! SPDLOG v{}", SPDLOG_VERSION);
-    test_k_div_1();
+    test_k_div_1(FLAGS_num_agents);
+    gflags::ShutDownCommandLineFlags();
     return 0;
 }
