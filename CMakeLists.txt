@@ -44,6 +44,8 @@ add_executable(PopulationProtocol
     src/graph/CompleteGraph.cpp
     src/protocol/StringProtocol.cpp
     src/state/StringState.cpp
+    src/util/AvgResultsDatabaseManager.cpp
+    src/util/FullResultsDatabaseManager.cpp
 )
 
 target_link_libraries(PopulationProtocol PRIVATE 
