@@ -25,6 +25,7 @@ brew install duckdb
 duckdb --version
 duckdb protocol_results.db
 D SELECT * FROM protocol_results ORDER BY avg_steps DESC;
+D .quit
 ```
 
 ## Code Functions
