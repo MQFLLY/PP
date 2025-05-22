@@ -20,7 +20,7 @@ sudo snap install duckdb
 export DYLD_LIBRARY_PATH=thirdparty/duckdb/build/release/src:$DYLD_LIBRARY_PATH
 brew install duckdb
 
-./PopulationProtocol
+./PopulationProtocol --max_num_agents=30
 
 duckdb --version
 duckdb protocol_results.db

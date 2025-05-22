@@ -8,13 +8,15 @@
 template <typename ProtocolFactory>
 class ConvergenceEvaluator {
 public:
-    explicit ConvergenceEvaluator(size_t threads = 4, 
+    explicit ConvergenceEvaluator(size_t threads = 
+        std::thread::hardware_concurrency(), 
         std::string db_path = "protocol_results.db") 
         : pool(threads), db(db_path) {}
 
     void evaluate(int n, int k, int trials = 1) {
         for (int t = 0; t < trials; ++t) {
-            auto task = [this, n, k]() -> int {
+            auto task = [this, n, k, t]() -> int {
+                spdlog::info("starting {}th trial, n = {}, k = {}", t, n, k);
                 auto graph = std::make_unique<CompleteGraph>(n);
                 auto protocol = factory.create(k);
                 Simulator<decltype(protocol)> simulator(std::move(graph), 
