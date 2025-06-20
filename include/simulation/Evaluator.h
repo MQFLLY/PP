@@ -2,9 +2,12 @@
 #include "util/ThreadPool.h"
 #include "util/AvgResultsDatabaseManager.h"
 #include "util/FullResultsDatabaseManager.h"
+#include "protocol/KDivisionProtocol.h"
+#include "protocol/RatioKDivisionProtocol.h"
 #include <map>
 #include <atomic>
 #include <functional>
+#include <type_traits>
 #include <spdlog/spdlog.h>
 
 template <typename ProtocolFactory>
@@ -15,7 +18,7 @@ public:
         std::string db_path = "protocol_results.db",
         std::function<bool(int, int)> log_condition = [](int n, int k) {
             // return n >= 50 || k >= 5;
-            return false;
+            return true;
         }
     ) : pool(threads), db(db_path), full_db(db_path), log_condition(log_condition) {}
 
@@ -41,35 +44,94 @@ public:
         }
     }
 
-    void printResults() {
-        std::lock_guard<std::mutex> lock(result_mutex);
-        for (auto& [params, futures] : results) {
-            auto [n, k, trials] = params;
-            
-            long long total_steps = 0;
-            int trial_count = 0;
-            
-            for (auto& future : futures) {
-                int steps = future.get();
-                full_db.saveFullResults(n, k, steps);
-                total_steps += steps;
-                ++trial_count;
-            }
+    void evaluate(int n, int k, std::vector<int> ratio, int trials = 1) {
+        for (int t = 0; t < trials; ++t) {
+            auto task = [this, n, k, t, ratio]() -> int {
+                if (this->log_condition(n, k)) {
+                    spdlog::info("starting {}th trial, n = {}, k = {}", t, n, k);
+                }
+                auto graph = std::make_unique<CompleteGraph>(n);
+                auto protocol = factory.create(k, n, ratio);
+                Simulator<decltype(protocol)> simulator(std::move(graph), 
+                                                      std::move(protocol), n);
+                return simulator.run();
+            };
 
-            long long avg_steps = total_steps / trial_count;
-            if (log_condition(n, k)) {
-                spdlog::info("n={} k={} | Trials: {} | Avg Steps: {}", 
-                     n, k, trial_count, avg_steps);
+            auto future = pool.enqueue(task);
+            
+            {
+                std::lock_guard<std::mutex> lock(result_mutex);
+                ratio_results[{n, k, ratio, trials}].emplace_back(std::move(future));
             }
-            db.saveAvgResults(n, k, trials, avg_steps);
+        }
+    }
+
+    void printResults() {
+        if constexpr (std::is_same_v<ProtocolFactory, KDivisionProtocolFactory>) {
+            std::lock_guard<std::mutex> lock(result_mutex);
+            for (auto& [params, futures] : results) {
+                auto [n, k, trials] = params;
+                
+                long long total_steps = 0;
+                int trial_count = 0;
+                
+                for (auto& future : futures) {
+                    int steps = future.get();
+                    full_db.saveFullResults(n, k, steps);
+                    total_steps += steps;
+                    ++trial_count;
+                }
+
+                long long avg_steps = total_steps / trial_count;
+                if (log_condition(n, k)) {
+                    spdlog::info("n={} k={} | Trials: {} | Avg Steps: {}", 
+                        n, k, trial_count, avg_steps);
+                }
+                db.saveAvgResults(n, k, trials, avg_steps);
+            }
+        } else if constexpr (std::is_same_v<ProtocolFactory, RatioKDivisionProtocolFactory>) {
+            std::lock_guard<std::mutex> lock(result_mutex);
+            for (auto& [params, futures] : ratio_results) {
+                auto [n, k, ratio, trials] = params;
+                
+                long long total_steps = 0;
+                int trial_count = 0;
+                
+                for (auto& future : futures) {
+                    int steps = future.get();
+                    // full_db.saveFullResults(n, k, ratio, steps);
+                    total_steps += steps;
+                    ++trial_count;
+                }
+
+                long long avg_steps = total_steps / trial_count;
+                if (log_condition(n, k)) {
+                    spdlog::info("[ratio protocol] n={} k={} | Trials: {} | Avg Steps: {}", 
+                        n, k, trial_count, avg_steps);
+                }
+                db.saveAvgResults(n, k, ratio, trials, avg_steps);
+            } 
         }
     }
 private:
+    struct RatioParams {
+        int n;
+        int k;
+        std::vector<int> ratio;
+        int trials;
+        bool operator < (const RatioParams& other) const {
+            if (n != other.n) return n < other.n;
+            if (k != other.k) return k < other.k;
+            if (ratio != other.ratio) return ratio < other.ratio; 
+            return trials < other.trials;
+        }
+    };
     ThreadPool pool;
     ProtocolFactory factory;
     AvgResultsDatabaseManager db;
     FullResultsDatabaseManager full_db;
     std::function<bool(int, int)> log_condition;
     std::map<std::tuple<int, int, int>, std::vector<std::future<int>>> results;
+    std::map<RatioParams, std::vector<std::future<int>>> ratio_results;
     std::mutex result_mutex;
 };

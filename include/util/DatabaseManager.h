@@ -4,6 +4,7 @@
 #include "duckdb.hpp"
 #include <mutex>
 #include <string>
+#include <vector>
 #include <spdlog/spdlog.h>
 
 class DatabaseManager {

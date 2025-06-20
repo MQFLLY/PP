@@ -37,7 +37,7 @@ class KDivisionProtocol : public BaseProtocol<KDivisionProtocol> {
         add_symmetric_rule("i2", "m1", "g2", "m2");
         add_symmetric_rule("g2", "m2", "i1", "m1");
 
-        for(int l=2; l<=k-3; ++l) {
+        for(int l = 2; l <= k - 3; ++l) {
             const std::string ml = "m" + std::to_string(l);
             const std::string gl = "g" + std::to_string(l+1);
             const std::string ml1 = "m" + std::to_string(l+1);

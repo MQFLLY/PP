@@ -10,7 +10,7 @@ class AvgResultsDatabaseManager : public DatabaseManager {
 public:
     AvgResultsDatabaseManager(const std::string& db_path = "protocol_results.db");
     void saveAvgResults(int n, int k, int trials, int64_t avg_steps);
-
+    void saveAvgResults(int n, int k, std::vector<int>ratio, int trials, int64_t avg_steps);
 private:
     std::mutex db_mutex;
 };
