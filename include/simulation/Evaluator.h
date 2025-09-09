@@ -4,6 +4,7 @@
 #include "util/FullResultsDatabaseManager.h"
 #include "protocol/KDivisionProtocol.h"
 #include "protocol/RatioKDivisionProtocol.h"
+#include "protocol/Rule.h"
 #include <map>
 #include <atomic>
 #include <functional>
@@ -45,15 +46,17 @@ public:
     }
 
     void evaluate(int n, int k, std::vector<int> ratio, int trials = 1) {
+        auto protocol = factory.create(k, n, ratio);
         for (int t = 0; t < trials; ++t) {
-            auto task = [this, n, k, t, ratio]() -> int {
+            auto task = [this, n, k, t, ratio, protocol]() -> std::pair<int, RuleCountMap> {
+                /*
                 if (this->log_condition(n, k)) {
                     spdlog::info("starting {}th trial, n = {}, k = {}", t, n, k);
                 }
+                */
                 auto graph = std::make_unique<CompleteGraph>(n);
-                auto protocol = factory.create(k, n, ratio);
                 Simulator<decltype(protocol)> simulator(std::move(graph), 
-                                                      std::move(protocol), n);
+                                                      protocol, n);
                 return simulator.run();
             };
 
@@ -95,22 +98,49 @@ public:
                 auto [n, k, ratio, trials] = params;
                 
                 long long total_steps = 0;
+                std::unordered_map<RuleKey, long long, PairHash> rule_counter;
                 int trial_count = 0;
                 
+                auto merge = [](std::unordered_map<RuleKey, long long, PairHash>& a, std::unordered_map<RuleKey, long long, PairHash>& b) {
+                    if (a.empty()) {
+                        a = b;
+                    }
+                    for (auto& [k, v]: a) {
+                        v += b[k];
+                    }
+                };
+                
                 for (auto& future : futures) {
-                    int steps = future.get();
+                    auto res = future.get();
+                    int steps = res.first;
+                    auto rule_count = res.second;
+                    merge(rule_counter, rule_count);
                     // full_db.saveFullResults(n, k, ratio, steps);
                     total_steps += steps;
                     ++trial_count;
                 }
-
+                
+                long long tot = 0;
+                for (auto& [k, v]: rule_counter) {
+                    tot += v;
+                }
+                for (auto& [k, v]: rule_counter) {
+                    if (k.first > k.second) {
+                        rule_counter[{k.second, k.first}] += v;
+                        v = 0;
+                    }
+                }
+                for (auto& [k, v]: rule_counter) {
+                    if (v)
+                    std::cout << k.first << ' ' << k.second << ' ' << (double)v / tot << std::endl; 
+                }
                 long long avg_steps = total_steps / trial_count;
                 if (log_condition(n, k)) {
                     spdlog::info("[ratio protocol] n={} k={} | Trials: {} | Avg Steps: {}", 
                         n, k, trial_count, avg_steps);
                 }
                 db.saveAvgResults(n, k, ratio, trials, avg_steps);
-            } 
+            }
         }
     }
 private:
@@ -132,6 +162,6 @@ private:
     FullResultsDatabaseManager full_db;
     std::function<bool(int, int)> log_condition;
     std::map<std::tuple<int, int, int>, std::vector<std::future<int>>> results;
-    std::map<RatioParams, std::vector<std::future<int>>> ratio_results;
+    std::map<RatioParams, std::vector<std::future<std::pair<int, RuleCountMap>>>> ratio_results;
     std::mutex result_mutex;
 };

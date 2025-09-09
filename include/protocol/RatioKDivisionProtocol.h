@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <utility>
 #include <algorithm>
+#include <spdlog/spdlog.h>
 
 template <>
 struct ProtocolTraits<RatioKDivisionProtocol> {
@@ -62,12 +63,14 @@ class RatioKDivisionProtocol : public BaseProtocol<RatioKDivisionProtocol> {
         const std::string gk = "g" + std::to_string(f(sig));
         add_symmetric_rule("i1", mk2, gk1, gk);
         add_symmetric_rule("i2", mk2, gk1, gk);
-
+        /*
+        std::cout << "====== Rule =======" << std::endl;
         for (auto [k, v]: rule_cache_) {
             auto [rule1, rule2] = k;
             auto [rule3, rule4] = v;
             std::cout << rule1 << ' ' << rule2 << ' ' << rule3 << ' ' << rule4 << std::endl;
         }
+        */
     }
 
     void add_rule(const std::string& a, const std::string& b,
@@ -115,7 +118,23 @@ public:
         if(auto it = rule_cache_.find({a_val, b_val}); it != rule_cache_.end()) {
             a.setState(std::make_unique<RatioKDivisionState>(it->second.first));
             b.setState(std::make_unique<RatioKDivisionState>(it->second.second));
+            rule_counts_[{a_val, b_val}]++;
         }
+    }
+
+    void printRuleCounts() const {
+        long long tot_counts = 0;
+        for (auto [rule, count]: rule_counts_) {
+            tot_counts += count;
+        } 
+        spdlog::info("total rule counts: {}", tot_counts);
+        for (auto [rule, count]: rule_counts_) {
+            spdlog::info("rule: {},{}  count rate: {}", rule.first, rule.second, (double)count / tot_counts);
+        }
+    }
+
+    std::unordered_map<RuleKey, long long, PairHash> getRuleCounts() {
+        return rule_counts_;
     }
 
     void initializeAgentsImpl(std::vector<Agent<RatioKDivisionProtocol>>& agents) {
@@ -127,23 +146,19 @@ public:
     bool isConvergedImpl(const std::vector<Agent<RatioKDivisionProtocol>>& agents) const {
         int count = 0;
         static int total_count = 0;
-        if (total_count < 300) {
-            std::cout << "debug begin" << std::endl; 
-        }
         for (const auto& agent : agents) {
             const auto* state = dynamic_cast<const RatioKDivisionState*>(agent.getState());
+            /*
             if (total_count < 300) {
                 std::cout << state->getValue() << std::endl;
             }
+            */
             if (state && state->getValue()[0] == 'g') {
                 count++;
             }
         }
-        if (total_count < 300) {
-            std::cout << "debug end" << std::endl;
-        }
         total_count++;
-        return count == n;
+       return count == n;
     }
 
 private:
@@ -152,20 +167,10 @@ private:
     std::vector<int> ratio;
     int ratio_sum;
     int expected_g_sig_siz; 
-    using RuleKey = std::pair<std::string, std::string>;
-    using RuleValue = std::pair<std::string, std::string>;
-
-
-    struct PairHash {
-        template <class T1, class T2>
-        std::size_t operator () (const std::pair<T1,T2>& p) const {
-            auto h1 = std::hash<T1>{}(p.first);
-            auto h2 = std::hash<T2>{}(p.second);
-            return h1 ^ (h2 << 1);
-        }
-    };
     
     std::unordered_map<RuleKey, RuleValue, PairHash> rule_cache_;
+    std::unordered_map<RuleKey, long long, PairHash> rule_counts_;
+
 };
 
 class RatioKDivisionProtocolFactory {

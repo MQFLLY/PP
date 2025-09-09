@@ -16,7 +16,7 @@ void test_k_div_1(int min_n, int max_n,
   int min_k, int max_k) {
     auto start = std::chrono::high_resolution_clock::now();
 
-    constexpr int trials = 100;
+    constexpr int trials = 1000;
 
     ConvergenceEvaluator<KDivisionProtocolFactory> evaluator;
 
@@ -44,9 +44,17 @@ void test_k_div_1(int min_n, int max_n,
 
 void test_k_div_2(int min_n, int max_n,
     int min_k, int max_k, const std::vector<int>& ratio) {
+      auto vec2str = [](const std::vector<int>& ratio) {
+        std::string str = "";
+        for (auto it: ratio) {
+            str += std::to_string(it) + ",";
+        }
+        return str;
+      };
+      spdlog::info("ratio = {}", vec2str(ratio));
       auto start = std::chrono::high_resolution_clock::now();
   
-      constexpr int trials = 1;
+      constexpr int trials = 1000;
   
       ConvergenceEvaluator<RatioKDivisionProtocolFactory> evaluator;
   
@@ -84,12 +92,12 @@ int main(int argc, char* argv[]) {
                  FLAGS_max_k);
     */
 
-    test_k_div_2(9, 
-                 9,
-                 3,
-                 3,
-                 {1, 3, 5});
-
+    std::vector<int> ratio = {1, 1, 2, 4};
+    test_k_div_1(8, 8, 8, 8);
+    do {
+        test_k_div_2(8, 8, 4, 4, ratio);
+    } while (std::next_permutation(ratio.begin(), ratio.end()));
+   
     gflags::ShutDownCommandLineFlags();
     return 0;
 }

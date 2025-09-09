@@ -5,8 +5,11 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <utility>
+#include "protocol/Rule.h"
 #include "graph/Graph.h"
 #include "protocol/BaseProtocol.h"
+#include "protocol/RatioKDivisionProtocol.h"
 #include "agent/Agent.h"
 
 template <typename Protocol>
@@ -22,19 +25,30 @@ public:
         protocol.initializeAgents(agents);
     }
 
-    int run(size_t maxSteps = 1000000) {
+    auto run(size_t maxSteps = (1ull << 63)) {
         if (!graph->hasEdges()) {
             throw std::runtime_error("Graph has no edges");
         }
 
         for(interaction_count = 0; interaction_count < maxSteps; ++interaction_count) {
-            if (protocol.isConverged(agents)) 
-                return interaction_count;
+            if (protocol.isConverged(agents)) {
+                if constexpr (std::is_same_v<Protocol, RatioKDivisionProtocol>) {
+                    return std::pair<int, RuleCountMap>{interaction_count, protocol.getRuleCounts()};
+                } else {
+                    return (int)interaction_count;
+                }
+            }
 
             auto [a, b] = graph->selectRandomEdge();
             protocol.interact(agents[a], agents[b]);
         }
-        return -1;
+        
+        if constexpr (std::is_same_v<Protocol, RatioKDivisionProtocol>) {
+            RuleCountMap res;
+            return std::pair<int, RuleCountMap>{-1, res};
+        } else {
+            return (int)-1;
+        }
     }
 
     bool isConverged() const {
@@ -47,6 +61,10 @@ public:
             std::cout << "Agent " << i << ": "
                       << (s ? s->getValue() : "INVALID") << "\n";
         }
+    }
+
+    void printRuleCounts() const {
+        protocol.printRuleCounts();
     }
 };
 
