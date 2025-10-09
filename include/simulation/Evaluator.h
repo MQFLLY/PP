@@ -4,6 +4,7 @@
 #include "util/FullResultsDatabaseManager.h"
 #include "protocol/KDivisionProtocol.h"
 #include "protocol/RatioKDivisionProtocol.h"
+#include "protocol/RatioKDivisionParaProtocol.h"
 #include "protocol/Rule.h"
 #include <map>
 #include <atomic>
@@ -92,7 +93,7 @@ public:
                 }
                 db.saveAvgResults(n, k, trials, avg_steps);
             }
-        } else if constexpr (std::is_same_v<ProtocolFactory, RatioKDivisionProtocolFactory>) {
+        } else if constexpr (std::is_same_v<ProtocolFactory, RatioKDivisionProtocolFactory> ||  std::is_same_v<ProtocolFactory, RatioKDivisionParaProtocolFactory>) {
             std::lock_guard<std::mutex> lock(result_mutex);
             for (auto& [params, futures] : ratio_results) {
                 auto [n, k, ratio, trials] = params;
@@ -102,11 +103,13 @@ public:
                 int trial_count = 0;
                 
                 auto merge = [](std::unordered_map<RuleKey, long long, PairHash>& a, std::unordered_map<RuleKey, long long, PairHash>& b) {
-                    if (a.empty()) {
-                        a = b;
-                    }
-                    for (auto& [k, v]: a) {
-                        v += b[k];
+                    for (auto& [k, v]: b) {
+                        if (!a.count(k)) {
+                            a[k] = v;
+                        }
+                        else {
+                            a[k] += v;
+                        }
                     }
                 };
                 
@@ -126,13 +129,14 @@ public:
                 }
                 for (auto& [k, v]: rule_counter) {
                     if (k.first > k.second) {
+                        std::cout << "miss: " << k.first << ' ' << k.second << '\n';
                         rule_counter[{k.second, k.first}] += v;
                         v = 0;
                     }
                 }
                 for (auto& [k, v]: rule_counter) {
                     if (v)
-                    std::cout << k.first << ' ' << k.second << ' ' << (double)v / tot << std::endl; 
+                        spdlog::info("rule freq: [{}, {}]: {}", k.first, k.second, (double)v / tot);
                 }
                 long long avg_steps = total_steps / trial_count;
                 if (log_condition(n, k)) {

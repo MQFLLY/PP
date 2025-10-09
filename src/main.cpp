@@ -1,6 +1,7 @@
 #include "simulation/Simulator.h"
 #include "protocol/KDivisionProtocol.h"
 #include "protocol/RatioKDivisionProtocol.h"
+#include "protocol/RatioKDivisionParaProtocol.h"
 #include "graph/CompleteGraph.h"
 #include "simulation/Evaluator.h"
 #include <iostream>
@@ -54,7 +55,7 @@ void test_k_div_2(int min_n, int max_n,
       spdlog::info("ratio = {}", vec2str(ratio));
       auto start = std::chrono::high_resolution_clock::now();
   
-      constexpr int trials = 1000;
+      constexpr int trials = 100000;
   
       ConvergenceEvaluator<RatioKDivisionProtocolFactory> evaluator;
   
@@ -80,6 +81,46 @@ void test_k_div_2(int min_n, int max_n,
       }
   }
 
+ void test_para(int min_n, int max_n,
+    int min_k, int max_k, const std::vector<int>& ratio) {
+      auto vec2str = [](const std::vector<int>& ratio) {
+        std::string str = "";
+        for (auto it: ratio) {
+            str += std::to_string(it) + ",";
+        }
+        return str;
+      };
+      spdlog::info("ratio = {}", vec2str(ratio));
+      auto start = std::chrono::high_resolution_clock::now();
+  
+      constexpr int trials = 1;
+  
+      ConvergenceEvaluator<RatioKDivisionParaProtocolFactory> evaluator;
+  
+      for(int k = min_k; k <= max_k; k++) {
+          for(int n = std::max(k, min_n); n <= max_n; n += k) {
+              evaluator.evaluate(n, k, ratio, trials);
+          }
+      }
+  
+      evaluator.printResults();
+  
+      auto end = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double, std::milli> duration = end - start;
+     
+      // print evalute time (ms)
+      double duration_time = duration.count();
+      if (duration_time > 1000) {
+          duration_time /= 1000; 
+          spdlog::info("total cost: {} s", duration_time);
+      }
+      else {
+          spdlog::info("total cost: {} ms", duration_time);
+      }
+  }
+
+ 
+
 
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -92,12 +133,12 @@ int main(int argc, char* argv[]) {
                  FLAGS_max_k);
     */
 
-    std::vector<int> ratio = {1, 1, 2, 4};
-    test_k_div_1(8, 8, 8, 8);
+    std::vector<int> ratio = {1, 2, 2, 4};
+    // test_k_div_1(8, 8, 8, 8);
     do {
-        test_k_div_2(8, 8, 4, 4, ratio);
+        test_k_div_2(9, 9, 4, 4, ratio);
     } while (std::next_permutation(ratio.begin(), ratio.end()));
-   
+    test_para(9, 9, 4, 4, ratio);
     gflags::ShutDownCommandLineFlags();
     return 0;
 }

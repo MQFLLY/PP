@@ -10,6 +10,7 @@
 #include "graph/Graph.h"
 #include "protocol/BaseProtocol.h"
 #include "protocol/RatioKDivisionProtocol.h"
+#include "protocol/RatioKDivisionParaProtocol.h"
 #include "agent/Agent.h"
 
 template <typename Protocol>
@@ -32,7 +33,7 @@ public:
 
         for(interaction_count = 0; interaction_count < maxSteps; ++interaction_count) {
             if (protocol.isConverged(agents)) {
-                if constexpr (std::is_same_v<Protocol, RatioKDivisionProtocol>) {
+                if constexpr (std::is_same_v<Protocol, RatioKDivisionProtocol> || std::is_same_v<Protocol, RatioKDivisionParaProtocol>) {
                     return std::pair<int, RuleCountMap>{interaction_count, protocol.getRuleCounts()};
                 } else {
                     return (int)interaction_count;
@@ -43,7 +44,7 @@ public:
             protocol.interact(agents[a], agents[b]);
         }
         
-        if constexpr (std::is_same_v<Protocol, RatioKDivisionProtocol>) {
+        if constexpr (std::is_same_v<Protocol, RatioKDivisionProtocol> || std::is_same_v<Protocol, RatioKDivisionParaProtocol>) {
             RuleCountMap res;
             return std::pair<int, RuleCountMap>{-1, res};
         } else {
