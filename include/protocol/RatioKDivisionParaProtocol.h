@@ -19,27 +19,99 @@ struct ProtocolTraits<RatioKDivisionParaProtocol> {
 };
 
 class RatioKDivisionParaProtocol : public BaseProtocol<RatioKDivisionParaProtocol> {
-/**
-    f(x) = y iff \sum_{j = 1}^{y - 1} sig_j < x <= \sum_{j = 1}^y sig_j
-    1. (i1,i1) → (i2,i2)
-    2. (i2,i2) → (i1,i1)
-    3. (i1,i2) → (g1,m1)
-    4. (g1,m1) → (i1,i2)
-    5. (il, mj) -> (g_f(j + 1), m_{j + 1}), 1 <= l <= 2, 1 <= j <= sig - 2
-    6. (g_f(j + 1), m_j) -> (i1, m_j), 1 <= j <= sig - 2
-    7. (i_l, m_{sig - 2}) -> (g_f(sig - 1), g_f(sig)), 1 <= l <= 2
-**/
+
+    /**
+    Rule:
+        1. (i_1, i_1) -> (i_2, i_2)
+        2. (i_2, i_2) -> (i_1, i_1)
+        3. (i_1, i_2) -> (g_i, m_{i, 1}) with prob p_i
+        4. (g_i, m_{i, 1}) -> (i_1, i_2) , 1 <= i <= k
+        5. (m_{i, j}, i_l) -> (g_i, m_{i, j + 1}), 1 < i <= k, 1 <= j < N(i) - 1, 1 <= l <= 2
+        6. (g_i, m_{i, j + 1}) -> (m_{i, j}, i_l), 1 < i <= k, 1 <= j < N(i) - 1, 1 <= l <= 2
+        7. (m_{i - 1, N(i - 1)}, m_{i, N(i) - 1}) -> (m_{i, N(i)}, g_i), 1 < i < k
+        8. (m_{i, N(i)}, g_i) -> (m_{i - 1, N(i - 1)}, m_{i, N(i) - 1}), 1 < i < k
+        9. (m_{k - 1, N(k - 1)}, m_{k, N(k) - 1}) -> (g_1, g_k)
+        10. (m_{1, j}, i_l) -> (g_1, m_{1, j + 1}), 1 <= j < N(i) - 2, 1 <= l <= 2
+        11. (g_1, m_{1, j + 1}) -> (m_{1, j}, i_l), 1 <= j < N(i) - 2, 1 <= l <= 2
+        12. (g_1, m_{1, N(1) - 2}) -> (m_{1, N(1)}, i_l), 1 <= l <= 2
+        13. (m_{1, N(1)}, i_l) -> (g_1, m_{1, N(1) - 2}), 1 <= l <= 2
+    **/
+
     void build_rule_cache() {
         add_symmetric_rule("i1", "i1", "i2", "i2");
         add_symmetric_rule("i2", "i2", "i1", "i1");
         add_symmetric_rule("i1", "i2", "g1", "m1,1");
         
+        int tmp_n = n;
+        n = ratio_sum;
+
         for (int i = 1; i <= k; i++) {
             auto m_i = "m" + std::to_string(i) + ",";
             auto m_i_minus_1 = "m" + std::to_string(i - 1 >= 1 ? i - 1 : k) + ",";
             auto g_i = "g" + std::to_string(i);
             int tot_i = n * ratio[i - 1] / ratio_sum;
-            int tot_i_minus_1 = n * ratio[(i - 2) >= 0 ? i - 2 : k - 1] / ratio_sum;
+            int tot_i_minus_1 = n * ratio[(i - 1 >= 1 ? i - 1 : k) - 1] / ratio_sum;
+            
+            // inverse of (i1, i2) ->p (g_i, m_i)
+            if (i == 1) {
+                if (tot_i == 1) {
+                    add_symmetric_rule("i1", "m1,0",
+                                       "i1", "i2");
+                    add_symmetric_rule("i2", "m1,0",
+                                       "i1", "i2");
+
+                }
+                else {
+                    add_symmetric_rule("g1", "m1,1",
+                                        "i1", "i2");
+                }
+            }
+            else {
+                if (tot_i == 1) {
+                    add_symmetric_rule("i1", m_i + "0",
+                                        "i1", "i2");
+                    add_symmetric_rule("i2", m_i + "0",
+                                        "i1", "i2");
+                }
+                else {
+                    add_symmetric_rule(g_i, m_i + "1",
+                                       "i1", "i2");
+                }
+            }
+            
+
+            // (i_l, m_{i, j}) -> (g_i, m_{i, j + 1}) and its inversion
+            for (int j = 1; j <= tot_i - 2; j++) {
+                add_symmetric_rule("i1", m_i + std::to_string(j),
+                                    g_i, m_i + std::to_string(j + 1));
+                // add_symmetric_rule(g_i, m_i + std::to_string(j + 1),
+                                    // "i1", m_i + std::to_string(j));
+                add_symmetric_rule("i2", m_i + std::to_string(j),
+                                    g_i, m_i + std::to_string(j + 1));
+                add_symmetric_rule(g_i, m_i + std::to_string(j + 1),
+                                    "i2", m_i + std::to_string(j));
+            }
+            
+            if (i == 2) {
+                add_symmetric_rule(m_i + std::to_string(tot_i - 1), m_i_minus_1 + std::to_string(tot_i_minus_1 - 1),
+                                   g_i, m_i + std::to_string(tot_i));
+                add_symmetric_rule(g_i, m_i + std::to_string(tot_i),
+                                    m_i + std::to_string(tot_i - 1), m_i_minus_1 + std::to_string(tot_i_minus_1 - 1));
+            }
+            else if (i != k){
+                add_symmetric_rule(m_i + std::to_string(tot_i - 1), m_i_minus_1 + std::to_string(tot_i_minus_1),
+                                   g_i, m_i + std::to_string(tot_i));
+                add_symmetric_rule(g_i, m_i + std::to_string(tot_i),
+                                    m_i + std::to_string(tot_i - 1), m_i_minus_1 + std::to_string(tot_i_minus_1));
+            }
+            else if (i == k){
+                add_symmetric_rule(m_i + std::to_string(tot_i - 1), m_i_minus_1 + std::to_string(tot_i_minus_1),
+                                   g_i, "g1");
+            }
+        }
+
+
+            /*
             if (tot_i == 1) {
                 add_symmetric_rule(m_i_minus_1 + std::to_string(tot_i_minus_1), "i1", g_i, m_i + std::to_string(tot_i));
                 add_symmetric_rule(g_i, m_i + std::to_string(tot_i), m_i_minus_1 + std::to_string(tot_i_minus_1), "i1"); 
@@ -71,7 +143,7 @@ class RatioKDivisionParaProtocol : public BaseProtocol<RatioKDivisionParaProtoco
                 add_symmetric_rule(g_i, m_i + std::to_string(tot_i),
                                     "i2", m_i + std::to_string(tot_i - 2));
             }
-            if (i == k) {
+            else if (i == k) {
                 add_symmetric_rule(m_i_minus_1 + std::to_string(tot_i_minus_1), m_i + std::to_string(tot_i - 1), g_i, "g1");
             }
             else if (i > 1) {
@@ -82,8 +154,10 @@ class RatioKDivisionParaProtocol : public BaseProtocol<RatioKDivisionParaProtoco
                 add_symmetric_rule(prev, m_i + std::to_string(tot_i - 1), g_i, m_i + std::to_string(tot_i));
                 add_symmetric_rule(g_i, m_i + std::to_string(tot_i), prev, m_i + std::to_string(tot_i - 1)); 
             }
-        }
+            */
         
+        n = tmp_n;
+
         std::cout << "====== Rule =======" << std::endl;
         for (auto [k, v]: rule_cache_) {
             auto [rule1, rule2] = k;
@@ -138,22 +212,43 @@ public:
         
         if ((a_val == "i1" && b_val == "i2") || (a_val == "i2" && b_val == "i1")) {
             int target = gen.gen();
-            while (true) {
-                if (ratio[target - 1]  * n / ratio_sum == 1) {
-                    target = gen.gen();
-                    continue;
-                } else {
-                    a.setState(std::make_unique<RatioKDivisionParaState>("g" + std::to_string(target)));
-                    if (target == 1 && ratio[target - 1] * n / ratio_sum == 2)
-                        b.setState(std::make_unique<RatioKDivisionParaState>("m" + std::to_string(target) + ",2"));
-                    else 
-                        b.setState(std::make_unique<RatioKDivisionParaState>("m" + std::to_string(target) + ",1"));
-                    break;
+            int N_i = ratio[target - 1] * ratio_sum / ratio_sum;
+            if (target == 1) {
+                if (N_i == 1) {
+                    a.setState(std::make_unique<RatioKDivisionParaState>("i1"));
+                    b.setState(std::make_unique<RatioKDivisionParaState>("m1,0"));
+                }
+                else {
+                    a.setState(std::make_unique<RatioKDivisionParaState>("g1"));
+                    b.setState(std::make_unique<RatioKDivisionParaState>("m1,1"));
                 }
             }
+            else {
+                if (N_i == 1) {
+                    a.setState(std::make_unique<RatioKDivisionParaState>("i1")); 
+                    b.setState(std::make_unique<RatioKDivisionParaState>("m" + std::to_string(target) + "," +  std::to_string(0)));
+                }
+                else {
+                    a.setState(std::make_unique<RatioKDivisionParaState>("g" + std::to_string(target)));
+                    b.setState(std::make_unique<RatioKDivisionParaState>("m" + std::to_string(target) + ",1"));
+                }
+            }
+
+            /*
+            if (ratio[target - 1]  * n / ratio_sum == 1) {
+                target = gen.gen();
+                continue;
+            } else {
+                a.setState(std::make_unique<RatioKDivisionParaState>("g" + std::to_string(target)));
+                if (target == 1 && ratio[target - 1] * n / ratio_sum == 2)
+                    b.setState(std::make_unique<RatioKDivisionParaState>("m" + std::to_string(target) + ",2"));
+                else 
+                    b.setState(std::make_unique<RatioKDivisionParaState>("m" + std::to_string(target) + ",1"));
+                break;
+            }
+            */
             return;
         }
-
         if (auto it = rule_cache_.find({a_val, b_val}); it != rule_cache_.end()) {
             a.setState(std::make_unique<RatioKDivisionParaState>(it->second.first));
             b.setState(std::make_unique<RatioKDivisionParaState>(it->second.second));
@@ -184,27 +279,32 @@ public:
     bool isConvergedImpl(const std::vector<Agent<RatioKDivisionParaProtocol>>& agents) const {
         int count = 0;
         static int total_count = 0;
-        const int LOG_TIME = 10000000; 
+        const int LOG_TIME = 10000000;
+        /*
         if (0 == total_count % LOG_TIME) {
             std::cout << "LOGGING..." << std::endl;
-        } 
+        }
+        */
         for (const auto& agent : agents) {
             const auto* state = dynamic_cast<const RatioKDivisionParaState*>(agent.getState());
+            /*
             if (0 == total_count % LOG_TIME) {
                 std::cout << state->getValue() << std::endl;
             }
+            */
             if (state && state->getValue()[0] == 'g') {
                 count++;
             }
         }
         total_count++;
+        /*
         if (count == n) {
             std::cout << "ENDING..." << std::endl;
             for (const auto& agent: agents) {
                 const auto* state = dynamic_cast<const RatioKDivisionParaState*>(agent.getState());
                 std::cout << state->getValue() << std::endl;
             }
-        }
+        }*/
        return count == n;
     }
 

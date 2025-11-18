@@ -93,7 +93,7 @@ void test_k_div_2(int min_n, int max_n,
       spdlog::info("ratio = {}", vec2str(ratio));
       auto start = std::chrono::high_resolution_clock::now();
   
-      constexpr int trials = 1;
+      constexpr int trials = 100;
   
       ConvergenceEvaluator<RatioKDivisionParaProtocolFactory> evaluator;
   
@@ -133,12 +133,13 @@ int main(int argc, char* argv[]) {
                  FLAGS_max_k);
     */
 
-    std::vector<int> ratio = {1, 2, 2, 4};
+    std::vector<int> ratio = {1, 1, 2, 4};
     // test_k_div_1(8, 8, 8, 8);
     do {
-        test_k_div_2(9, 9, 4, 4, ratio);
+        // test_k_div_2(16, 16, 4, 4, ratio);
+        test_para(8, 8, 4, 4, ratio);
     } while (std::next_permutation(ratio.begin(), ratio.end()));
-    test_para(9, 9, 4, 4, ratio);
+    // test_para(9, 9, 4, 4, ratio);
     gflags::ShutDownCommandLineFlags();
     return 0;
 }

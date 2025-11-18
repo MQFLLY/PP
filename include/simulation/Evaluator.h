@@ -129,14 +129,14 @@ public:
                 }
                 for (auto& [k, v]: rule_counter) {
                     if (k.first > k.second) {
-                        std::cout << "miss: " << k.first << ' ' << k.second << '\n';
+                        // std::cout << "miss: " << k.first << ' ' << k.second << '\n';
                         rule_counter[{k.second, k.first}] += v;
                         v = 0;
                     }
                 }
                 for (auto& [k, v]: rule_counter) {
                     if (v)
-                        spdlog::info("rule freq: [{}, {}]: {}", k.first, k.second, (double)v / tot);
+                        spdlog::debug("rule freq: [{}, {}]: {}", k.first, k.second, (double)v / tot);
                 }
                 long long avg_steps = total_steps / trial_count;
                 if (log_condition(n, k)) {
