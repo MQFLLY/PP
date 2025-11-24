@@ -6,6 +6,7 @@
 #include "protocol/RatioKDivisionProtocol.h"
 #include "protocol/RatioKDivisionParaProtocol.h"
 #include "protocol/Rule.h"
+#include "graph/RandomConnectedGraph.h"
 #include <map>
 #include <atomic>
 #include <functional>

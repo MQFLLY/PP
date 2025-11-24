@@ -42,6 +42,7 @@ add_subdirectory(thirdparty/duckdb)
 add_executable(PopulationProtocol
     src/main.cpp
     src/graph/CompleteGraph.cpp
+    src/graph/RandomConnectedGraph.cpp
     src/protocol/StringProtocol.cpp
     src/state/StringState.cpp
     src/util/AvgResultsDatabaseManager.cpp
