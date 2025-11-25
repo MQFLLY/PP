@@ -94,7 +94,7 @@ public:
         const auto& a_val = a_state->getValue();
         const auto& b_val = b_state->getValue();
 
-        // 查找规则
+        // match rule
         if(auto it = rule_cache_.find({a_val, b_val}); it != rule_cache_.end()) {
             a.setState(std::make_unique<KDivisionState>(it->second.first));
             b.setState(std::make_unique<KDivisionState>(it->second.second));

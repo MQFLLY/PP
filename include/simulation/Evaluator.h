@@ -6,6 +6,7 @@
 #include "protocol/RatioKDivisionProtocol.h"
 #include "protocol/RatioKDivisionParaProtocol.h"
 #include "protocol/Rule.h"
+#include "graph/CompleteGraph.h"
 #include "graph/RandomConnectedGraph.h"
 #include <map>
 #include <atomic>
@@ -13,7 +14,7 @@
 #include <type_traits>
 #include <spdlog/spdlog.h>
 
-template <typename ProtocolFactory>
+template <typename ProtocolFactory, typename Graph>
 class ConvergenceEvaluator {
 public:
     explicit ConvergenceEvaluator(size_t threads = 
@@ -25,17 +26,26 @@ public:
         }
     ) : pool(threads), db(db_path), full_db(db_path), log_condition(log_condition) {}
 
-    void evaluate(int n, int k, int trials = 1) {
+    void evaluate(int n, int k, int trials = 1, int edges = 1) {
         for (int t = 0; t < trials; ++t) {
-            auto task = [this, n, k, t]() -> int {
+            auto task = [this, n, k, t, edges]() -> int {
                 if (this->log_condition(n, k)) {
                     spdlog::info("starting {}th trial, n = {}, k = {}", t, n, k);
                 }
-                auto graph = std::make_unique<CompleteGraph>(n);
-                auto protocol = factory.create(k);
-                Simulator<decltype(protocol)> simulator(std::move(graph), 
+                if constexpr (std::is_same_v<Graph, RandomConnectedGraph>) {
+                    auto graph = std::make_unique<Graph>(n + 1, edges);
+                    auto protocol = factory.create(k);
+                    Simulator<decltype(protocol)> simulator(std::move(graph), 
+                                                      std::move(protocol), n + 1);
+                    return simulator.run();
+                }
+                else if constexpr(std::is_same_v<Graph, CompleteGraph>) {
+                    auto graph = std::make_unique<Graph>(n);
+                    auto protocol = factory.create(k);
+                    Simulator<decltype(protocol)> simulator(std::move(graph), 
                                                       std::move(protocol), n);
-                return simulator.run();
+                    return simulator.run();
+                }
             };
 
             auto future = pool.enqueue(task);

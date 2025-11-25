@@ -2,7 +2,9 @@
 #include "protocol/KDivisionProtocol.h"
 #include "protocol/RatioKDivisionProtocol.h"
 #include "protocol/RatioKDivisionParaProtocol.h"
+#include "protocol/ArbitraryKDivisionWithBSProtocol.h"
 #include "graph/CompleteGraph.h"
+#include "graph/RandomConnectedGraph.h"
 #include "simulation/Evaluator.h"
 #include <iostream>
 #include <spdlog/spdlog.h>
@@ -19,7 +21,7 @@ void test_k_div_1(int min_n, int max_n,
 
     constexpr int trials = 1000;
 
-    ConvergenceEvaluator<KDivisionProtocolFactory> evaluator;
+    ConvergenceEvaluator<KDivisionProtocolFactory, CompleteGraph> evaluator;
 
     for(int k = min_k; k <= max_k; k++) {
         for(int n = std::max(k, min_n); n <= max_n; n += k) {
@@ -57,7 +59,7 @@ void test_k_div_2(int min_n, int max_n,
   
       constexpr int trials = 100000;
   
-      ConvergenceEvaluator<RatioKDivisionProtocolFactory> evaluator;
+      ConvergenceEvaluator<RatioKDivisionProtocolFactory, CompleteGraph> evaluator;
   
       for(int k = min_k; k <= max_k; k++) {
           for(int n = std::max(k, min_n); n <= max_n; n += k) {
@@ -95,7 +97,7 @@ void test_k_div_2(int min_n, int max_n,
   
       constexpr int trials = 100;
   
-      ConvergenceEvaluator<RatioKDivisionParaProtocolFactory> evaluator;
+      ConvergenceEvaluator<RatioKDivisionParaProtocolFactory, CompleteGraph> evaluator;
   
       for(int k = min_k; k <= max_k; k++) {
           for(int n = std::max(k, min_n); n <= max_n; n += k) {
@@ -117,7 +119,14 @@ void test_k_div_2(int min_n, int max_n,
       else {
           spdlog::info("total cost: {} ms", duration_time);
       }
-  }
+}
+
+void test_arbitrary_with_bs(int n, int k, int m) {
+    constexpr int trials = 1;
+    ConvergenceEvaluator<ArbitraryKDivisionWithBSProtocolFactory, RandomConnectedGraph> evaluator;
+
+    evaluator.evaluate(n, k, trials, m);
+}
 
  
 
@@ -135,10 +144,13 @@ int main(int argc, char* argv[]) {
 
     std::vector<int> ratio = {1, 1, 2, 4};
     // test_k_div_1(8, 8, 8, 8);
+    /*
     do {
         // test_k_div_2(16, 16, 4, 4, ratio);
         test_para(8, 8, 4, 4, ratio);
     } while (std::next_permutation(ratio.begin(), ratio.end()));
+    */
+    test_arbitrary_with_bs(6, 3, 6);
     // test_para(9, 9, 4, 4, ratio);
     gflags::ShutDownCommandLineFlags();
     return 0;

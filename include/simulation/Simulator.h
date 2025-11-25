@@ -11,6 +11,7 @@
 #include "protocol/BaseProtocol.h"
 #include "protocol/RatioKDivisionProtocol.h"
 #include "protocol/RatioKDivisionParaProtocol.h"
+#include "protocol/ArbitraryKDivisionWithBSProtocol.h"
 #include "agent/Agent.h"
 
 template <typename Protocol>
