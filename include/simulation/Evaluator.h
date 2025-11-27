@@ -57,19 +57,27 @@ public:
         }
     }
 
-    void evaluate(int n, int k, std::vector<int> ratio, int trials = 1) {
+    void evaluate(int n, int k, std::vector<int> ratio, int trials = 1, int edges = 1) {
         auto protocol = factory.create(k, n, ratio);
         for (int t = 0; t < trials; ++t) {
-            auto task = [this, n, k, t, ratio, protocol]() -> std::pair<int, RuleCountMap> {
+            auto task = [this, n, k, t, ratio, protocol, edges]() -> std::pair<int, RuleCountMap> {
                 /*
                 if (this->log_condition(n, k)) {
                     spdlog::info("starting {}th trial, n = {}, k = {}", t, n, k);
                 }
                 */
-                auto graph = std::make_unique<CompleteGraph>(n);
-                Simulator<decltype(protocol)> simulator(std::move(graph), 
-                                                      protocol, n);
-                return simulator.run();
+                if constexpr (std::is_same_v<Graph, CompleteGraph>) {
+                    auto graph = std::make_unique<CompleteGraph>(n);
+                    Simulator<decltype(protocol)> simulator(std::move(graph), 
+                                                        protocol, n);
+                    return simulator.run();
+                }
+                else if constexpr (std::is_same_v<Graph, RandomConnectedGraph>) {
+                    auto graph = std::make_unique<RandomConnectedGraph>(n, edges);
+                    Simulator<decltype(protocol)> simulator(std::move(graph), 
+                                                        protocol, n);
+                    return simulator.run();
+                }
             };
 
             auto future = pool.enqueue(task);
@@ -82,7 +90,7 @@ public:
     }
 
     void printResults() {
-        if constexpr (std::is_same_v<ProtocolFactory, KDivisionProtocolFactory>) {
+        if constexpr (std::is_same_v<ProtocolFactory, KDivisionProtocolFactory> || std::is_same_v<ProtocolFactory, ArbitraryKDivisionWithBSProtocolFactory>) {
             std::lock_guard<std::mutex> lock(result_mutex);
             for (auto& [params, futures] : results) {
                 auto [n, k, trials] = params;

@@ -8,7 +8,6 @@ RandomConnectedGraph::RandomConnectedGraph(size_t n, size_t m): numNodes(n) {
         size_t u = i + 1;
         std::uniform_int_distribution<size_t> dist(1, i);
         size_t v = dist(rng) ;
-        std::cout << u << ' ' << v << '\n';
         edges.push_back({v, u});
     }
     std::uniform_int_distribution<size_t> dist(1, n);
@@ -30,7 +29,6 @@ RandomConnectedGraph::RandomConnectedGraph(size_t n, size_t m): numNodes(n) {
                 }
             }
             if (!is_exist) {
-                std::cout << u << ' ' << v  << '\n';
                 edges.push_back({u, v});
                 break;
             }

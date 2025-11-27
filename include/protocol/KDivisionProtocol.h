@@ -99,6 +99,10 @@ public:
             a.setState(std::make_unique<KDivisionState>(it->second.first));
             b.setState(std::make_unique<KDivisionState>(it->second.second));
         }
+        else {
+            a.setState(std::make_unique<KDivisionState>(b_val));
+            b.setState(std::make_unique<KDivisionState>(a_val));
+        }
     }
 
     void initializeAgentsImpl(std::vector<Agent<KDivisionProtocol>>& agents) {

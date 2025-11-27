@@ -120,6 +120,10 @@ public:
             b.setState(std::make_unique<RatioKDivisionState>(it->second.second));
             rule_counts_[{a_val, b_val}]++;
         }
+        else {
+            a.setState(std::make_unique<RatioKDivisionState>(b_val));
+            b.setState(std::make_unique<RatioKDivisionState>(a_val));
+        }
     }
 
     void printRuleCounts() const {

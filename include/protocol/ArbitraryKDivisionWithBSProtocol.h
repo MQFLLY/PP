@@ -105,7 +105,6 @@ public:
     bool isConvergedImpl(const std::vector<Agent<ArbitraryKDivisionWithBSProtocol>>& agents) const {
         std::unordered_map<int, int> counts;
 
-        std::cout << "checking..." << std::endl;
         for (const auto& agent : agents) {
             const auto* state = dynamic_cast<const ArbitraryKDivisionWithBSState*>(agent.getState());
             if (state && state->isBs()) {
@@ -113,7 +112,6 @@ public:
             }
             if (state) {
                 counts[state->getNum()]++;
-                std::cout << state->getNum() << ' ' << state->getDep() << '\n';
             }
         }
 
