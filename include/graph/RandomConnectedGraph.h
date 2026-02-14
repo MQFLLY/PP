@@ -8,9 +8,16 @@
 
 class RandomConnectedGraph : public Graph {
 public:
+    RandomConnectedGraph() = default;
     explicit RandomConnectedGraph(size_t n, size_t m);
     std::pair<size_t, size_t> selectRandomEdge() override;
     bool hasEdges() const override;
+    RandomConnectedGraph clone() {
+        RandomConnectedGraph g;
+        g.numNodes = numNodes;
+        g.edges = edges;
+        return g;
+    }
 private:
     size_t numNodes;
     std::vector<std::pair<size_t, size_t>> edges; 

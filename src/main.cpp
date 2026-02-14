@@ -21,11 +21,11 @@ void test_k_div_1(int min_n, int max_n,
 
     constexpr int trials = 10000;
 
-    ConvergenceEvaluator<KDivisionProtocolFactory, RandomConnectedGraph> evaluator;
+    ConvergenceEvaluator<KDivisionProtocolFactory, CompleteGraph> evaluator;
 
     for(int k = min_k; k <= max_k; k++) {
         for(int n = std::max(k, min_n); n <= max_n; n += k) {
-            evaluator.evaluate(n, k, trials, 15);
+            evaluator.evaluate(n, k, trials);
         }
     }
 
@@ -121,14 +121,12 @@ void test_k_div_2(int min_n, int max_n,
       }
 }
 
-void test_arbitrary_with_bs(int n, int k, int m) {
-    constexpr int trials = 1;
-
+void test_arbitrary_with_bs(int n, int k, int m, const int trials) {
     spdlog::info("n = {}, m = {}, k = {}", n, m, k);
     auto start = std::chrono::high_resolution_clock::now();
     ConvergenceEvaluator<ArbitraryKDivisionWithBSProtocolFactory, RandomConnectedGraph> evaluator;
 
-    evaluator.evaluate(n, k, trials, m);
+    evaluator.evaluate(n, k, trials, m, 1);
     evaluator.printResults();
 
     auto end = std::chrono::high_resolution_clock::now();
@@ -145,7 +143,65 @@ void test_arbitrary_with_bs(int n, int k, int m) {
     }
 }
 
- 
+void test_arbitrary_with_bs_simple(int n, int k, int m, std::vector<int> ratio, const int trials) {
+    spdlog::info("n = {}, m = {}, k = {}", n, m, k);
+    auto start = std::chrono::high_resolution_clock::now();
+    ConvergenceEvaluator<ArbitraryKDivisionWithBSSimpleProtocolFactory, RandomConnectedGraph> evaluator;
+
+    evaluator.evaluate(n, k, ratio, trials, m, 1);
+    evaluator.printResults();
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start;
+    
+    // print evalute time (ms)
+    double duration_time = duration.count();
+    if (duration_time > 1000) {
+        duration_time /= 1000; 
+        spdlog::info("total cost: {} s", duration_time);
+    }
+    else {
+        spdlog::info("total cost: {} ms", duration_time);
+    }
+}
+
+
+void test_arbitrary_k(int min_n, int max_n, int min_k, int max_k, int min_e, int max_e, int trials) {
+    for (int n = min_n; n <= max_n; n++) {
+        for (int k = min_k; k <= max_k; k++) {
+            if (n % k) {
+                continue;
+            }
+            int min_e_tmp = min_e;
+            int max_e_tmp = max_e;
+            /*
+            if (min_e == -1 && max_e == -1) {
+                min_e_tmp = max_e_tmp = n; 
+            } */
+            for (int m = min_e_tmp; m <= max_e_tmp; m++) {
+                spdlog::info("n = {}, m = {}, k = {}", n, m, k);
+                auto start = std::chrono::high_resolution_clock::now();
+                ConvergenceEvaluator<KDivisionProtocolFactory, RandomConnectedGraph> evaluator;
+
+                evaluator.evaluate(n, k, trials, m);
+                evaluator.printResults();
+
+                auto end = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double, std::milli> duration = end - start;
+                
+                // print evalute time (ms)
+                double duration_time = duration.count();
+                if (duration_time > 1000) {
+                    duration_time /= 1000; 
+                    spdlog::info("total cost: {} s", duration_time);
+                }
+                else {
+                    spdlog::info("total cost: {} ms", duration_time);
+                }
+            }
+        }
+    }
+} 
 
 
 int main(int argc, char* argv[]) {
@@ -159,7 +215,7 @@ int main(int argc, char* argv[]) {
                  FLAGS_max_k);
     */
 
-    std::vector<int> ratio = {1, 1, 2, 4};
+    std::vector<int> ratio = {1, 1, 1};
     // test_k_div_1(8, 8, 8, 8);
     /*
     do {
@@ -167,9 +223,17 @@ int main(int argc, char* argv[]) {
         test_para(8, 8, 4, 4, ratio);
     } while (std::next_permutation(ratio.begin(), ratio.end()));
     */
-    // test_arbitrary_with_bs(6, 3, 6);
-    test_k_div_2(8, 8, 4, 4, {1, 1, 2, 4});
+    // test_arbitrary_with_bs(6, 3, 6, 1000);
+    // test_k_div_2(8, 8, 4, 4, {1, 1, 2, 4});
     // test_para(9, 9, 4, 4, ratio);
-    gflags::ShutDownCommandLineFlags();
+    
+    // test_arbitrary_k(6, 6, 3, 3, 7, 7, 1);
+    // test_k_div_1(8, 8, 4, 4);
+    int population_n = 6;
+    int k = 3;
+    int m = population_n;
+    // test_arbitrary_with_bs_simple(population_n, k, m, ratio, 2000);
+   //  test_arbitrary_with_bs(population_n, k, m, 2000);
+    test_arbitrary_k(60, 60, 3, 30, -1, -1, 200); gflags::ShutDownCommandLineFlags();
     return 0;
 }

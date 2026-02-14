@@ -5,6 +5,7 @@
 #include "protocol/KDivisionProtocol.h"
 #include "protocol/RatioKDivisionProtocol.h"
 #include "protocol/RatioKDivisionParaProtocol.h"
+#include "protocol/ArbitraryKDivisionWithBSSimpleProtocol.h"
 #include "protocol/Rule.h"
 #include "graph/CompleteGraph.h"
 #include "graph/RandomConnectedGraph.h"
@@ -26,17 +27,20 @@ public:
         }
     ) : pool(threads), db(db_path), full_db(db_path), log_condition(log_condition) {}
 
-    void evaluate(int n, int k, int trials = 1, int edges = 1) {
+    void evaluate(int n, int k, int trials = 1000, int edges = 1, int is_with_bs = 0) {
+        auto arbitrary_graph = new RandomConnectedGraph(n + is_with_bs, edges);
         for (int t = 0; t < trials; ++t) {
-            auto task = [this, n, k, t, edges]() -> int {
+            auto task = [this, n, k, t, edges, is_with_bs, arbitrary_graph]() -> int {
+                /*
                 if (this->log_condition(n, k)) {
                     spdlog::info("starting {}th trial, n = {}, k = {}", t, n, k);
                 }
+                */
                 if constexpr (std::is_same_v<Graph, RandomConnectedGraph>) {
-                    auto graph = std::make_unique<Graph>(n + 1, edges);
+                    auto graph = std::make_unique<Graph>(arbitrary_graph->clone());
                     auto protocol = factory.create(k);
                     Simulator<decltype(protocol)> simulator(std::move(graph), 
-                                                      std::move(protocol), n + 1);
+                                                      std::move(protocol), n + is_with_bs);
                     return simulator.run();
                 }
                 else if constexpr(std::is_same_v<Graph, CompleteGraph>) {
@@ -57,25 +61,26 @@ public:
         }
     }
 
-    void evaluate(int n, int k, std::vector<int> ratio, int trials = 1, int edges = 1) {
+    void evaluate(int n, int k, std::vector<int> ratio, int trials = 1, int edges = 1, int is_with_bs = 0) {
         auto protocol = factory.create(k, n, ratio);
+        auto arbitrary_graph = new RandomConnectedGraph(n + is_with_bs, edges);
         for (int t = 0; t < trials; ++t) {
-            auto task = [this, n, k, t, ratio, protocol, edges]() -> std::pair<int, RuleCountMap> {
+            auto task = [this, n, k, t, ratio, protocol, edges, is_with_bs, arbitrary_graph]() -> std::pair<int, RuleCountMap> {
                 /*
                 if (this->log_condition(n, k)) {
                     spdlog::info("starting {}th trial, n = {}, k = {}", t, n, k);
                 }
                 */
                 if constexpr (std::is_same_v<Graph, CompleteGraph>) {
-                    auto graph = std::make_unique<CompleteGraph>(n);
+                    auto graph = std::make_unique<CompleteGraph>(n + is_with_bs);
                     Simulator<decltype(protocol)> simulator(std::move(graph), 
-                                                        protocol, n);
+                                                        protocol, n + is_with_bs);
                     return simulator.run();
                 }
                 else if constexpr (std::is_same_v<Graph, RandomConnectedGraph>) {
-                    auto graph = std::make_unique<RandomConnectedGraph>(n, edges);
+                    auto graph = std::make_unique<RandomConnectedGraph>(arbitrary_graph->clone()); 
                     Simulator<decltype(protocol)> simulator(std::move(graph), 
-                                                        protocol, n);
+                                                        protocol, n + is_with_bs);
                     return simulator.run();
                 }
             };
@@ -88,6 +93,7 @@ public:
             }
         }
     }
+
 
     void printResults() {
         if constexpr (std::is_same_v<ProtocolFactory, KDivisionProtocolFactory> || std::is_same_v<ProtocolFactory, ArbitraryKDivisionWithBSProtocolFactory>) {
@@ -112,7 +118,7 @@ public:
                 }
                 db.saveAvgResults(n, k, trials, avg_steps);
             }
-        } else if constexpr (std::is_same_v<ProtocolFactory, RatioKDivisionProtocolFactory> ||  std::is_same_v<ProtocolFactory, RatioKDivisionParaProtocolFactory>) {
+        } else if constexpr (std::is_same_v<ProtocolFactory, RatioKDivisionProtocolFactory> ||  std::is_same_v<ProtocolFactory, RatioKDivisionParaProtocolFactory> || std::is_same_v<ProtocolFactory, ArbitraryKDivisionWithBSSimpleProtocolFactory>) {
             std::lock_guard<std::mutex> lock(result_mutex);
             for (auto& [params, futures] : ratio_results) {
                 auto [n, k, ratio, trials] = params;

@@ -12,6 +12,7 @@
 #include "protocol/RatioKDivisionProtocol.h"
 #include "protocol/RatioKDivisionParaProtocol.h"
 #include "protocol/ArbitraryKDivisionWithBSProtocol.h"
+#include "protocol/ArbitraryKDivisionWithBSSimpleProtocol.h"
 #include "agent/Agent.h"
 
 template <typename Protocol>
@@ -34,18 +35,17 @@ public:
 
         for(interaction_count = 0; interaction_count < maxSteps; ++interaction_count) {
             if (protocol.isConverged(agents)) {
-                if constexpr (std::is_same_v<Protocol, RatioKDivisionProtocol> || std::is_same_v<Protocol, RatioKDivisionParaProtocol>) {
+                if constexpr (std::is_same_v<Protocol, RatioKDivisionProtocol> || std::is_same_v<Protocol, RatioKDivisionParaProtocol> || std::is_same_v<Protocol, ArbitraryKDivisionWithBSSimpleProtocol>) {
                     return std::pair<int, RuleCountMap>{interaction_count, protocol.getRuleCounts()};
                 } else {
                     return (int)interaction_count;
                 }
             }
-
             auto [a, b] = graph->selectRandomEdge();
             protocol.interact(agents[a], agents[b]);
         }
         
-        if constexpr (std::is_same_v<Protocol, RatioKDivisionProtocol> || std::is_same_v<Protocol, RatioKDivisionParaProtocol>) {
+        if constexpr (std::is_same_v<Protocol, RatioKDivisionProtocol> || std::is_same_v<Protocol, RatioKDivisionParaProtocol> || std::is_same_v<Protocol, ArbitraryKDivisionWithBSSimpleProtocol>) {
             RuleCountMap res;
             return std::pair<int, RuleCountMap>{-1, res};
         } else {

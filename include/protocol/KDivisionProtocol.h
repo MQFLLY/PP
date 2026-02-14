@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <stdexcept>
 #include <utility>
+#include <mutex>
 
 template <>
 struct ProtocolTraits<KDivisionProtocol> {
@@ -94,12 +95,16 @@ public:
         const auto& a_val = a_state->getValue();
         const auto& b_val = b_state->getValue();
 
+        const std::string gk_minus1 = "g" + std::to_string(k - 1);
+        const std::string gk = "g" + std::to_string(k);
+
         // match rule
         if(auto it = rule_cache_.find({a_val, b_val}); it != rule_cache_.end()) {
             a.setState(std::make_unique<KDivisionState>(it->second.first));
             b.setState(std::make_unique<KDivisionState>(it->second.second));
         }
-        else {
+        // enable arbitrary graph
+        else if ((a_val[0] == 'i' && b_val[0] == 'g') || (b_val[0] == 'i' && a_val[0] == 'g')) {
             a.setState(std::make_unique<KDivisionState>(b_val));
             b.setState(std::make_unique<KDivisionState>(a_val));
         }
@@ -113,15 +118,34 @@ public:
 
     bool isConvergedImpl(const std::vector<Agent<KDivisionProtocol>>& agents) const {
         std::unordered_map<std::string, int> counts;
+        std::unordered_map<std::string, int> counts2;
+        std::unordered_map<int, std::string> pos_state;  
 
+        int cnt = 0;
         for (const auto& agent : agents) {
             const auto* state = dynamic_cast<const KDivisionState*>(agent.getState());
             if (state && state->getValue()[0] == 'g') {
                 counts[state->getValue()]++;
             }
+            counts2[state->getValue()]++;
+            pos_state[cnt++] = state->getValue();
         }
 
+        static std::mutex tmp_mtx;
+
+        /*
+        {
+            std::unique_lock<std::mutex> lk(tmp_mtx);
+            std::cout << "******" << std::endl;
+            for (auto [fi, se]: pos_state) {
+                std::cout << fi << ' ' << se << ' ';
+            }
+            std::cout << "\n******" << std::endl;
+        }
+        */
+
         if (counts.size() != (size_t)k) return false;
+
 
         int expected = agents.size() / k;
         for (const auto& pair : counts) {
@@ -144,7 +168,6 @@ private:
             return h1 ^ (h2 << 1);
         }
     };
-    
     std::unordered_map<RuleKey, RuleValue, PairHash> rule_cache_;
 };
 
